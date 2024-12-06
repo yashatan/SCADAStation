@@ -18,6 +18,7 @@ using Microsoft.AspNet.SignalR;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Net;
+using System.Timers;
 using System.Security.Policy;
 using Newtonsoft.Json.Linq;
 using S7.Net.Types;
@@ -33,40 +34,47 @@ namespace SCADAStationNetFrameWork
         List<ConnectDevice> listDevices;
         List<AlarmSetting> listAlarmSettings;
         public List<AlarmPoint> listAlarmPoints;
+        public List<TagLoggingSetting> listTagLoggingSettings;
         SCADAAppConfiguration mSCADAConfiguration;
         Dictionary<int, Plc> listS7plcs;
         private IDisposable _signalR;
         public string url;
         string filePath_SCADAStationConfiguration;
         private SCADAStationConfiguration mSCADAStationConfiguration;
-
+        public static ProjectInformation currentProjectInformation;
+        public List<TrendPoint> listTrendPoints;
         public FunctionalLab()
         {
-            listS7plcs = new Dictionary<int, Plc>();
-            filePath_SCADAStationConfiguration = "D:\\CaoHoc\\DeCuongLuanVan\\DiagramDesignerPart2\\SCADACreator\\bin\\Debug\\DemoSCADA.json";
 
-            LoadConfigFile(filePath_SCADAStationConfiguration);
 
-            StartServer();
-            SCADAHub.ClientConnected += SCADAHub_ClientConnected;
-            SCADAHub.ClientDisconnected += SCADAHub_ClientDisconnected;
-            SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
-            SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
+            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
+            Initialize();
         }
 
         public FunctionalLab(string fileName)
         {
             filePath_SCADAStationConfiguration = fileName;
+            Initialize();
+        }
+
+        private void Initialize()
+        {
             listS7plcs = new Dictionary<int, Plc>();
             LoadConfigFile(filePath_SCADAStationConfiguration);
-
-
+            listTrendPoints = SCADAStationDbContext.Instance.TrendPoints.ToList();
             StartServer();
             SCADAHub.ClientConnected += SCADAHub_ClientConnected;
             SCADAHub.ClientDisconnected += SCADAHub_ClientDisconnected;
             SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
             SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
+            SCADAHub.ClientGetTrendValue += SCADAHub_GetTrendValue;
+        }
 
+        private void SCADAHub_GetTrendValue(int tagloggingid)
+        {
+            List<TrendPoint> trendPoints = new List<TrendPoint>(SCADAStationDbContext.Instance.TrendPoints.Where(x => x.TagLoggingId == tagloggingid));
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.All.ReceiveTrendPoints(trendPoints);
         }
 
         private void SCADAHub_ClientConnected(string clientId)
@@ -79,6 +87,7 @@ namespace SCADAStationNetFrameWork
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
             mSCADAConfiguration = new SCADAAppConfiguration();
             mSCADAConfiguration.ControlDatas = mSCADAStationConfiguration.ControlDatas;
+            mSCADAConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
             if (listAlarmPoints.Count > 0)
             {
                 mSCADAConfiguration.CurrentAlarmPoints = listAlarmPoints;
@@ -132,17 +141,30 @@ namespace SCADAStationNetFrameWork
 
         public void LoadConfigFile(string fileName)
         {
-            //string filePath_SCADAStationConfiguration = "E:\\SCADAStationConfiguration.json";
-            //string filePath_TagInfoes = "E:\\SCADACreate1Tag.json";
             Trace.WriteLine($"Starting reading file");
             mSCADAStationConfiguration = new SCADAStationConfiguration();
             mSCADAStationConfiguration = Deserialize_SCADAStationConfiguration(fileName);
             listTags = mSCADAStationConfiguration.TagInfos;
             listDevices = mSCADAStationConfiguration.ConnectDevices;
             listAlarmSettings = mSCADAStationConfiguration.AlarmSettings;
+            listTagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
             listAlarmPoints = new List<AlarmPoint>();
-
+            currentProjectInformation = mSCADAStationConfiguration.ProjectInformation;
+            MappingTagInfo();
         }
+
+        private void MappingTagInfo()
+        {
+            foreach (var taglogging in listTagLoggingSettings)
+            {
+                taglogging.Tag = listTags.FirstOrDefault(m => m.Id == taglogging.Tag.Id);
+            }
+            foreach (AlarmSetting alarmsetting in listAlarmSettings)
+            {
+                alarmsetting.TriggerTag = listTags.FirstOrDefault(m => m.Id == alarmsetting.TriggerTag.Id);
+            }
+        }
+
         public async Task SetupDeviceConnection(List<ConnectDevice> deviceList)
         {
             foreach (var device in deviceList)
@@ -165,28 +187,29 @@ namespace SCADAStationNetFrameWork
 
             }
             SetUpTimer();
-            if (listAlarmSettings != null && listAlarmSettings.Count > 0)
-            {
-                SetUpAlarmTimer();
-            }
 
         }
 
         private void SetUpTimer()
         {
-            var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(200);
-            timer.Tick += Timer_Tick;
+            var timer = new System.Timers.Timer();
+            timer.Interval = 500;
+            timer.Elapsed += Timer_Tick;
             timer.Start();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            (sender as DispatcherTimer).Stop();
+            (sender as System.Timers.Timer).Stop();
             UpdateTagValue();
-            (sender as DispatcherTimer).Start();
+            UpdateTagLogging();
+            if (listAlarmSettings != null && listAlarmSettings.Count > 0)
+            {
+                CheckAlarm();
+            }
+            (sender as System.Timers.Timer).Start();
         }
-        //DB1.DBX2.4
+
         public void UpdateTagValue()
         {
             foreach (var tagInfo in listTags)
@@ -251,34 +274,30 @@ namespace SCADAStationNetFrameWork
         //bool testtagvalue;
         public async void testfunc()
         {
-            //if (testtagvalue) { SendTagValueToClient(11, 0);
+            //if (testtagvalue)
+            //{
+            //    SendTagValueToClient(11, 0);
             //    testtagvalue = false;
-            //} 
-            //else { SendTagValueToClient(11, 1);
+            //}
+            //else
+            //{
+            //    SendTagValueToClient(11, 1);
             //    testtagvalue = true;
             //}
             //SendTagValueToClient(15, 11);
             //await SetupDeviceConnection(listDevices);
-            var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
-            listAlarmPoints.Add(alarmpoint);
-            OnAlarmedAdded();
-            SendAlarmPointToClient(alarmpoint);
+            //var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
+            //listAlarmPoints.Add(alarmpoint);
+            //OnAlarmedAdded();
+            //SendAlarmPointToClient(alarmpoint);
         }
 
         #region Alarm
-        private void SetUpAlarmTimer()
-        {
-            var alarmtimer = new DispatcherTimer();
-            alarmtimer.Interval = TimeSpan.FromMilliseconds(1000);
-            alarmtimer.Tick += AlarmTimer_Tick;
-            alarmtimer.Start();
-        }
-
         private void AlarmTimer_Tick(object sender, EventArgs e)
         {
-            (sender as DispatcherTimer).Stop();
-            CheckAlarm();
-            (sender as DispatcherTimer).Start();
+            (sender as System.Timers.Timer).Stop();
+           // CheckAlarm();
+            (sender as System.Timers.Timer).Start();
         }
         private void SendAlarmPointToClient(AlarmPoint alarmpoint)
         {
@@ -289,13 +308,12 @@ namespace SCADAStationNetFrameWork
         {
             foreach (AlarmSetting alarmsetting in listAlarmSettings)
             {
-                var tag = listTags.Where(m => m.Id == alarmsetting.TriggerTag.Id).FirstOrDefault();
                 switch (alarmsetting.LimitMode)
                 {
                     case AlarmSetting.LimiType.Higher:
-                        if (tag != null)
+                        if (alarmsetting.TriggerTag != null)
                         {
-                            if (tag.Value > alarmsetting.Limit)
+                            if (alarmsetting.TriggerTag.Value > alarmsetting.Limit)
                             {
                                 if (!alarmsetting.IsAlarmed)
                                 {
@@ -313,9 +331,9 @@ namespace SCADAStationNetFrameWork
                         }
                         break;
                     case AlarmSetting.LimiType.Lower:
-                        if (tag != null)
+                        if (alarmsetting.TriggerTag != null)
                         {
-                            if (tag.Value < alarmsetting.Limit)
+                            if (alarmsetting.TriggerTag.Value < alarmsetting.Limit)
                             {
                                 if (!alarmsetting.IsAlarmed)
                                 {
@@ -325,10 +343,11 @@ namespace SCADAStationNetFrameWork
                                     OnAlarmedAdded();
                                     SendAlarmPointToClient(alarmpoint);
                                 }
-                                else
-                                {
-                                    alarmsetting.IsAlarmed = false;
-                                }
+
+                            }
+                            else
+                            {
+                                alarmsetting.IsAlarmed = false;
                             }
                         }
                         break;
@@ -369,6 +388,33 @@ namespace SCADAStationNetFrameWork
             OnAlarmedAdded();
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
             hubContext.Clients.All.ACKAlarmPoint(alarmpointId);
+        }
+        #endregion
+
+        #region Trend
+        private void UpdateTagLogging()
+        {
+            foreach (TagLoggingSetting TagLogging in listTagLoggingSettings)
+            {
+                TagLogging.currentDuration += 0.5;
+                if (TagLogging.currentDuration >= TagLogging.GetTimeCycle())
+                {
+
+                    var trendPoint = new TrendPoint(TagLogging.Id, TagLogging.Tag.Value, System.DateTime.Now);
+                    SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
+                    listTrendPoints.Add(trendPoint);
+                    SCADAStationDbContext.Instance.SaveChanges();
+                    SendTrendPointToClient(trendPoint);
+                    TagLogging.currentDuration = 0;
+                    //OnAlarmedAdded();
+                }
+            }
+        }
+
+        public void SendTrendPointToClient(TrendPoint trendPoint)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.All.WriteTrendPoint(trendPoint);
         }
         #endregion
     }

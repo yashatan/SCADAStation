@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Reflection.Emit;
 using System.Security.Policy;
 using System.Text;
@@ -15,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json.Linq;
+
 
 namespace SCADAStationNetFrameWork
 {
@@ -31,7 +35,7 @@ namespace SCADAStationNetFrameWork
             functionalLab = new FunctionalLab();
             url.Text = $"Server started at:{functionalLab.url}";
             functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            lvAlarm.ItemsSource = functionalLab.listTrendPoints;
         }
 
         private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
@@ -54,8 +58,14 @@ namespace SCADAStationNetFrameWork
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            TrendPoint trendPoint = new TrendPoint() { TimeStamp = DateTime.Now, Value = 12.0, TagLoggingId = 0 };
+            //context.TrendPoints.Add(trendPoint);
+            //SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
+            functionalLab.SendTrendPointToClient(trendPoint);
+            //SCADAStationDbContext.Instance.SaveChanges();
 
         }
+
 
         private void btnAckAlarm_Click(object sender, RoutedEventArgs e)
         {

@@ -12,7 +12,8 @@ namespace SCADAStationNetFrameWork
     //public delegate void MessageReceivedEventHandler(string senderClientId, string message);
     public delegate void WriteTagEventHandler(int tagid, object value);
     public delegate void GetAlarmValueEventHandler(TagInfo taginfo, object value);
-    public delegate void GetTrendValueEventHandler(TagInfo taginfo, DateTime begintime, DateTime endtime);
+    public delegate void GetTrendValueEventHandler(int trendsettingid);
+    public delegate void GetTrendValueByDateTimeEventHandler(int trendsettingid, DateTime begintime, DateTime endtime);
     public delegate void AcknowledgeAlarmPointEventHandler(int alarmpointId);
 
 
@@ -74,6 +75,15 @@ namespace SCADAStationNetFrameWork
             // _users.TryRemove(Context.ConnectionId, out userName);
 
             AcknowledgeAlarmPoint?.Invoke(alarmId);
+
+        }
+
+        public void GetTrendValue(int trendsettingid)
+        {
+            // string userName;
+            // _users.TryRemove(Context.ConnectionId, out userName);
+
+            ClientGetTrendValue?.Invoke(trendsettingid);
 
         }
         #region Client Methods

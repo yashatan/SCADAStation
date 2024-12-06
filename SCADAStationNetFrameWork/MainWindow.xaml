@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="1000">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Stretch"
@@ -18,6 +18,9 @@
             <Button x:Name="TestSend"
                     Height="30"
                     Click="TestSend_Click"></Button>
+            <Button 
+                    Height="30"
+                    Click="Button_Click"></Button>
         </StackPanel>
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       VerticalAlignment="Stretch"
@@ -29,15 +32,12 @@
                       >
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="ID"
-                                        Width="20"
-                                        DisplayMemberBinding="{Binding ID}" />
-                        <GridViewColumn Header="Name"
+                        <GridViewColumn Header="Value"
                                         Width="200"
                                         DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="Description"
+                        <GridViewColumn Header="TrendSettingId"
                                         Width="250"
-                                        DisplayMemberBinding="{Binding Text}" />
+                                        DisplayMemberBinding="{Binding TagLoggingId}" />
                         <GridViewColumn Header="TimeStamp"
                                         Width="200"
                                         DisplayMemberBinding="{Binding TimeStamp}" />

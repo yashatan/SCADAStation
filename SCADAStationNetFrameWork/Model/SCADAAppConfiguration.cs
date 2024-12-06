@@ -11,7 +11,12 @@ namespace SCADAStationNetFrameWork
         List<ControlData> controlDatas;
         public List<ControlData> ControlDatas { get { return controlDatas; } set { controlDatas = value; } }
         private List<AlarmPoint> currentAlarmPoints;
-
+        List<TrendViewSetting> trendViewSettings;
+        public List<TrendViewSetting> TrendViewSettings
+        {
+            get { return trendViewSettings; }
+            set { trendViewSettings = value; }
+        }
         public List<AlarmPoint> CurrentAlarmPoints
         {
             get { return currentAlarmPoints; }

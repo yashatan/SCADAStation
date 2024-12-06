@@ -8,6 +8,13 @@ namespace SCADAStationNetFrameWork
 {
     public class SCADAStationConfiguration
     {
+        private ProjectInformation projectInformation;
+
+        public ProjectInformation ProjectInformation
+        {
+            get { return projectInformation; }
+            set { projectInformation = value; }
+        }
         List<ControlData> controlDatas;
         public List<ControlData> ControlDatas
         {
@@ -31,6 +38,24 @@ namespace SCADAStationNetFrameWork
         {
             get { return alarmSettings; }
             set { alarmSettings = value; }
+        }
+        List<TrendSetting> trendSettings;
+        public List<TrendSetting> TrendSettings
+        {
+            get { return trendSettings; }
+            set { trendSettings = value; }
+        }
+        List<TagLoggingSetting> tagLoggingSettings;
+        public List<TagLoggingSetting> TagLoggingSettings
+        {
+            get { return tagLoggingSettings; }
+            set { tagLoggingSettings = value; }
+        }
+        List<TrendViewSetting> trendViewSettings;
+        public List<TrendViewSetting> TrendViewSettings
+        {
+            get { return trendViewSettings; }
+            set { trendViewSettings = value; }
         }
         public SCADAStationConfiguration()
         {
