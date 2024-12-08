@@ -33,9 +33,11 @@ namespace SCADAStationNetFrameWork
         public Nullable<int> S7PLCSlot { get; set; }
         public Nullable<int> S7PLCRack { get; set; }
         public Nullable<int> ModbusPort { get; set; }
+        public byte ModbusDeviceId { get; set; }
         public string OPCUAUserName { get; set; }
         public string OPCUAUserPassword { get; set; }
-    
+
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TagInfo> TagInfoes { get; set; }
         public enum emConnectionType

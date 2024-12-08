@@ -19,9 +19,11 @@
         public enum ItemActiontype
         {
             emSetbit,
-            emResetBit
+            emResetBit,
+            emSetValue
         }
         private string name;
+        public int Value { get; set; }
 
         public string Name
         {

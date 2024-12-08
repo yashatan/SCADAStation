@@ -38,6 +38,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyModbus, Version=5.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\EasyModbus.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -152,6 +156,7 @@
     <Compile Include="Model\TrendViewSetting.cs" />
     <Compile Include="SCADAHub.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Utilities\ControlDevice.cs" />
     <Compile Include="Utilities\FunctionalLab.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

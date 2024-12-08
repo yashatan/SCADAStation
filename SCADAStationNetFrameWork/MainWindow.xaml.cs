@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 
 namespace SCADAStationNetFrameWork
@@ -35,7 +36,7 @@ namespace SCADAStationNetFrameWork
             functionalLab = new FunctionalLab();
             url.Text = $"Server started at:{functionalLab.url}";
             functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            lvAlarm.ItemsSource = functionalLab.listTrendPoints;
+            lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
         }
 
         private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
@@ -48,6 +49,8 @@ namespace SCADAStationNetFrameWork
             InitializeComponent();
 
             functionalLab = new FunctionalLab(fileName);
+            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
             url.Text = $"Server started at:{functionalLab.url}";
         }
 
@@ -58,12 +61,22 @@ namespace SCADAStationNetFrameWork
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            TrendPoint trendPoint = new TrendPoint() { TimeStamp = DateTime.Now, Value = 12.0, TagLoggingId = 0 };
-            //context.TrendPoints.Add(trendPoint);
-            //SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
-            functionalLab.SendTrendPointToClient(trendPoint);
+            //TrendPoint trendPoint = new TrendPoint() { TimeStamp = DateTime.Now, Value = 12.0, TagLoggingId = 0 };
+            ////context.TrendPoints.Add(trendPoint);
+            ////SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
+            //functionalLab.SendTrendPointToClient(trendPoint);
             //SCADAStationDbContext.Instance.SaveChanges();
 
+            //TagInfo tagInfo = new TagInfo();
+            //tagInfo.Type = TagInfo.TagType.eDouble;
+            //tagInfo.BitPosition = 1;
+            //tagInfo.Data = 1085276160;
+            //Trace.WriteLine(tagInfo.Value);
+            //tagInfo.Value = "-3005";
+            //Trace.WriteLine(tagInfo.Data);
+            //Trace.WriteLine(tagInfo.Value);
+            ControlDevice device = new ControlDevice();
+            device.test();
         }
 
 

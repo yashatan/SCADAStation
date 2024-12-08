@@ -39,12 +39,6 @@ namespace SCADAStationNetFrameWork
             get { return alarmSettings; }
             set { alarmSettings = value; }
         }
-        List<TrendSetting> trendSettings;
-        public List<TrendSetting> TrendSettings
-        {
-            get { return trendSettings; }
-            set { trendSettings = value; }
-        }
         List<TagLoggingSetting> tagLoggingSettings;
         public List<TagLoggingSetting> TagLoggingSettings
         {

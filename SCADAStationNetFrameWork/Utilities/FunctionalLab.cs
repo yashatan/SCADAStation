@@ -18,10 +18,12 @@ using Microsoft.AspNet.SignalR;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Net;
+using EasyModbus;
 using System.Timers;
 using System.Security.Policy;
 using Newtonsoft.Json.Linq;
 using S7.Net.Types;
+using System.Runtime.Serialization.Formatters.Binary;
 
 
 
@@ -36,7 +38,7 @@ namespace SCADAStationNetFrameWork
         public List<AlarmPoint> listAlarmPoints;
         public List<TagLoggingSetting> listTagLoggingSettings;
         SCADAAppConfiguration mSCADAConfiguration;
-        Dictionary<int, Plc> listS7plcs;
+        Dictionary<int, ControlDevice> listControlDevices;
         private IDisposable _signalR;
         public string url;
         string filePath_SCADAStationConfiguration;
@@ -45,9 +47,7 @@ namespace SCADAStationNetFrameWork
         public List<TrendPoint> listTrendPoints;
         public FunctionalLab()
         {
-
-
-            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
+            filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
@@ -59,7 +59,7 @@ namespace SCADAStationNetFrameWork
 
         private void Initialize()
         {
-            listS7plcs = new Dictionary<int, Plc>();
+            listControlDevices = new Dictionary<int, ControlDevice>();
             LoadConfigFile(filePath_SCADAStationConfiguration);
             listTrendPoints = SCADAStationDbContext.Instance.TrendPoints.ToList();
             StartServer();
@@ -67,78 +67,30 @@ namespace SCADAStationNetFrameWork
             SCADAHub.ClientDisconnected += SCADAHub_ClientDisconnected;
             SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
             SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
-            SCADAHub.ClientGetTrendValue += SCADAHub_GetTrendValue;
+            SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
         }
 
-        private void SCADAHub_GetTrendValue(int tagloggingid)
+        //bool testtagvalue;
+        public async void testfunc()
         {
-            List<TrendPoint> trendPoints = new List<TrendPoint>(SCADAStationDbContext.Instance.TrendPoints.Where(x => x.TagLoggingId == tagloggingid));
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
-            hubContext.Clients.All.ReceiveTrendPoints(trendPoints);
+            //if (testtagvalue)
+            //{
+            //    SendTagValueToClient(11, 0);
+            //    testtagvalue = false;
+            //}
+            //else
+            //{
+            //    SendTagValueToClient(11, 1);
+            //    testtagvalue = true;
+            //}
+            //SendTagValueToClient(15, 11);
+            await SetupDeviceConnection(listDevices);
+            //var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
+            //listAlarmPoints.Add(alarmpoint);
+            //OnAlarmedAdded();
+            //SendAlarmPointToClient(alarmpoint);
         }
-
-        private void SCADAHub_ClientConnected(string clientId)
-        {
-            SendSCADAConfigurationToApp();
-        }
-
-        private void SendSCADAConfigurationToApp()
-        {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
-            mSCADAConfiguration = new SCADAAppConfiguration();
-            mSCADAConfiguration.ControlDatas = mSCADAStationConfiguration.ControlDatas;
-            mSCADAConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
-            if (listAlarmPoints.Count > 0)
-            {
-                mSCADAConfiguration.CurrentAlarmPoints = listAlarmPoints;
-            }
-            hubContext.Clients.All.DownloadSCADAConfig(mSCADAConfiguration);
-        }
-
-        private void SCADAHub_ClientDisconnected(string clientId)
-        {
-            //ConnectDevice al;
-            // throw new NotImplementedException();
-        }
-
-        private void SCADAHub_ClientWriteTag(int tagid, object value)
-        {
-            TagInfo taginfo = listTags.Where(p => p.Id == tagid).FirstOrDefault();
-            if (taginfo.ConnectDevice.ConnectionType == (int)ConnectDevice.emConnectionType.emS7)
-            {
-                listS7plcs[taginfo.ConnectDevice.Id].Write(taginfo.MemoryAddress, value);
-            }
-        }
-
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    if (ip.ToString().Contains("0.50")) { continue; }
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("Local IP Address Not Found!");
-        }
-
-        public void StartServer()
-        {
-            url = $"http://{GetLocalIPAddress()}:8088/SCADA";
-            //txtUrl.Text = url;
-            _signalR = WebApp.Start<Startup>(url);
-
-        }
-
-        private void SendTagValueToClient(int tagID, int value)
-        {
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
-            hubContext.Clients.All.UpdateTags(tagID, value);
-        }
-
-
+        #region SCADA
         public void LoadConfigFile(string fileName)
         {
             Trace.WriteLine($"Starting reading file");
@@ -153,6 +105,53 @@ namespace SCADAStationNetFrameWork
             MappingTagInfo();
         }
 
+        CpuType ConvertToCPUType(string type)
+        {
+            CpuType result = CpuType.S7200;
+            switch (type)
+            {
+                case "S7-200":
+                    result = CpuType.S7200;
+                    break;
+                case "S7-1200":
+                    result = CpuType.S71200;
+                    break;
+                case "S7-1500":
+                    result = CpuType.S71500;
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        }
+
+        public static SCADAStationConfiguration Deserialize_SCADAStationConfiguration(string filePath)
+        {
+
+            string jsonString = File.ReadAllText(filePath);
+            var stationConfiguration = new SCADAStationConfiguration();
+            stationConfiguration = JsonSerializer.Deserialize<SCADAStationConfiguration>(jsonString);
+            return stationConfiguration;
+        }
+        public static List<TagInfo> Deserialize_Tags(string filePath)
+        {
+
+            string jsonString = File.ReadAllText(filePath);
+            var listTags = new List<TagInfo>();
+            listTags = JsonSerializer.Deserialize<List<TagInfo>>(jsonString);
+            return listTags;
+        }
+        public static List<ConnectDevice> Deserialize_ConnectDevice(string filePath)
+        {
+
+            string jsonString = File.ReadAllText(filePath);
+            var listDevices = new List<ConnectDevice>();
+            listDevices = JsonSerializer.Deserialize<List<ConnectDevice>>(jsonString);
+            return listDevices;
+        }
+        #endregion
+
+        #region PLC
         private void MappingTagInfo()
         {
             foreach (var taglogging in listTagLoggingSettings)
@@ -169,25 +168,17 @@ namespace SCADAStationNetFrameWork
         {
             foreach (var device in deviceList)
             {
-                if (device.ConnectionType == (int)ConnectDevice.emConnectionType.emS7)
+                ControlDevice connectDevice = new ControlDevice(device);
+                await connectDevice.Connect();
+                if (connectDevice.ConnectionStatus == "Successful")
                 {
-                    var PLC = new Plc(ConvertToCPUType(device.S7PLCType), device.Destination, (short)device.S7PLCRack, (short)device.S7PLCSlot);
-                    try
-                    {
-                        await PLC.OpenAsync();
-                        Trace.WriteLine($"Connect to the PLC {device.Name} {device.Destination} succesfully");
-                        listS7plcs.Add(device.Id, PLC);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine($"Can not connect to the PLC {device.Destination}: {ex.Message}");
-                        throw;
-                    }
+                    listControlDevices.Add(device.Id, connectDevice);
                 }
-
             }
-            SetUpTimer();
-
+            if (listControlDevices.Count > 0)
+            {
+                SetUpTimer();
+            }
         }
 
         private void SetUpTimer()
@@ -214,91 +205,35 @@ namespace SCADAStationNetFrameWork
         {
             foreach (var tagInfo in listTags)
             {
-                var device = listS7plcs[tagInfo.ConnectDevice.Id];
-                var ob1 = device.Read(tagInfo.MemoryAddress);
-                int temp = Convert.ToInt16(ob1);
-                if (temp != tagInfo.Value)
+                if (listControlDevices.ContainsKey(tagInfo.ConnectDevice.Id))
                 {
-                    tagInfo.Value = temp;
-                    SendTagValueToClient(tagInfo.Id, tagInfo.Value);
+                    var device = listControlDevices[tagInfo.ConnectDevice.Id];
+                    if (device != null)
+                    {
+                        long temp = tagInfo.Data;
+                        device.ReadTag(tagInfo);
+                        if (temp != tagInfo.Data)
+                        {
+                            SendTagValueToClient(tagInfo.Id, tagInfo.Data);
+                        }
+                    }
                 }
-                Trace.WriteLine($"Read tag {tagInfo.Name} from device {tagInfo.ConnectDevice.Name} by value: {temp}");
+
+
             }
         }
-
-        CpuType ConvertToCPUType(string type)
+        public static byte[] ObjectToByteArray(object obj)
         {
-            CpuType result = CpuType.S7200;
-            switch (type)
+            if (obj == null) return null;
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream())
             {
-                case "S7-200":
-                    result = CpuType.S7200;
-                    break;
-                case "S7-1200":
-                    result = CpuType.S71200;
-                    break;
-                case "S7-1500":
-                    result = CpuType.S71500;
-                    break;
-                default:
-                    break;
+                bf.Serialize(ms, obj); return ms.ToArray();
             }
-            return result;
         }
-        public void SetupSignalR() { }
-
-        public static SCADAStationConfiguration Deserialize_SCADAStationConfiguration(string filePath)
-        {
-
-            string jsonString = File.ReadAllText(filePath);
-            var stationConfiguration = new SCADAStationConfiguration();
-            stationConfiguration = JsonSerializer.Deserialize<SCADAStationConfiguration>(jsonString);
-            return stationConfiguration;
-        }
-        public static List<TagInfo> Deserialize_Tags(string filePath)
-        {
-
-            string jsonString = File.ReadAllText(filePath);
-            var listTags = new List<TagInfo>();
-            listTags = JsonSerializer.Deserialize<List<TagInfo>>(jsonString);
-            return listTags;
-        }
-        public static List<ConnectDevice> Deserialize_ConnectDevice(string filePath)
-        {
-
-            string jsonString = File.ReadAllText(filePath);
-            var listDevices = new List<ConnectDevice>();
-            listDevices = JsonSerializer.Deserialize<List<ConnectDevice>>(jsonString);
-            return listDevices;
-        }
-        //bool testtagvalue;
-        public async void testfunc()
-        {
-            //if (testtagvalue)
-            //{
-            //    SendTagValueToClient(11, 0);
-            //    testtagvalue = false;
-            //}
-            //else
-            //{
-            //    SendTagValueToClient(11, 1);
-            //    testtagvalue = true;
-            //}
-            //SendTagValueToClient(15, 11);
-            //await SetupDeviceConnection(listDevices);
-            //var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
-            //listAlarmPoints.Add(alarmpoint);
-            //OnAlarmedAdded();
-            //SendAlarmPointToClient(alarmpoint);
-        }
+        #endregion
 
         #region Alarm
-        private void AlarmTimer_Tick(object sender, EventArgs e)
-        {
-            (sender as System.Timers.Timer).Stop();
-           // CheckAlarm();
-            (sender as System.Timers.Timer).Start();
-        }
         private void SendAlarmPointToClient(AlarmPoint alarmpoint)
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
@@ -308,12 +243,29 @@ namespace SCADAStationNetFrameWork
         {
             foreach (AlarmSetting alarmsetting in listAlarmSettings)
             {
+                int value = 0;
+                if (alarmsetting.TriggerTag.Type == TagInfo.TagType.eReal)
+                {
+                    var temp = Convert.ToSingle(alarmsetting.TriggerTag.Value);
+                    value = Convert.ToInt32(temp);
+                }
+                else if (alarmsetting.TriggerTag.Type == TagInfo.TagType.eDouble)
+                {
+                    var temp = Convert.ToDouble(alarmsetting.TriggerTag.Value);
+                    value = Convert.ToInt32(temp);
+
+                }
+                else
+                {
+                    value = Convert.ToInt32(alarmsetting.TriggerTag.Value);
+                }
                 switch (alarmsetting.LimitMode)
                 {
                     case AlarmSetting.LimiType.Higher:
                         if (alarmsetting.TriggerTag != null)
                         {
-                            if (alarmsetting.TriggerTag.Value > alarmsetting.Limit)
+
+                            if (value > alarmsetting.Limit)
                             {
                                 if (!alarmsetting.IsAlarmed)
                                 {
@@ -333,7 +285,7 @@ namespace SCADAStationNetFrameWork
                     case AlarmSetting.LimiType.Lower:
                         if (alarmsetting.TriggerTag != null)
                         {
-                            if (alarmsetting.TriggerTag.Value < alarmsetting.Limit)
+                            if (value < alarmsetting.Limit)
                             {
                                 if (!alarmsetting.IsAlarmed)
                                 {
@@ -382,13 +334,7 @@ namespace SCADAStationNetFrameWork
             OnAlarmedAdded();
         }
 
-        public void ACKAlarmPoint(int alarmpointId)
-        {
-            listAlarmPoints.RemoveAll(m => m.Id == alarmpointId);
-            OnAlarmedAdded();
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
-            hubContext.Clients.All.ACKAlarmPoint(alarmpointId);
-        }
+
         #endregion
 
         #region Trend
@@ -399,14 +345,29 @@ namespace SCADAStationNetFrameWork
                 TagLogging.currentDuration += 0.5;
                 if (TagLogging.currentDuration >= TagLogging.GetTimeCycle())
                 {
+                    int value = 0;
+                    if (TagLogging.Tag.Type == TagInfo.TagType.eReal)
+                    {
+                        var temp = Convert.ToSingle(TagLogging.Tag.Value);
+                        value = Convert.ToInt32(temp);
+                    }
+                    else if (TagLogging.Tag.Type == TagInfo.TagType.eDouble)
+                    {
+                        var temp = Convert.ToDouble(TagLogging.Tag.Value);
+                        value = Convert.ToInt32(temp);
 
-                    var trendPoint = new TrendPoint(TagLogging.Id, TagLogging.Tag.Value, System.DateTime.Now);
+                    }
+                    else
+                    {
+                        value = Convert.ToInt32(TagLogging.Tag.Value);
+                    }
+                    var trendPoint = new TrendPoint(TagLogging.Id, value, System.DateTime.Now);
                     SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
                     listTrendPoints.Add(trendPoint);
                     SCADAStationDbContext.Instance.SaveChanges();
                     SendTrendPointToClient(trendPoint);
                     TagLogging.currentDuration = 0;
-                    //OnAlarmedAdded();
+                    OnAlarmedAdded();
                 }
             }
         }
@@ -415,6 +376,91 @@ namespace SCADAStationNetFrameWork
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
             hubContext.Clients.All.WriteTrendPoint(trendPoint);
+        }
+        #endregion
+
+        #region SignalR
+        public void ACKAlarmPoint(int alarmpointId)
+        {
+            listAlarmPoints.RemoveAll(m => m.Id == alarmpointId);
+            OnAlarmedAdded();
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.All.ACKAlarmPoint(alarmpointId);
+        }
+        private void SendTagValueToClient(int tagID, long value)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.All.UpdateTags(tagID, value);
+        }
+        public void StartServer()
+        {
+            url = $"http://{GetLocalIPAddress()}:8088/SCADA";
+            //txtUrl.Text = url;
+            _signalR = WebApp.Start<Startup>(url);
+
+        }
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if (ip.ToString().Contains("0.50")) { continue; }
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+        private void SCADAHub_ClientWriteTag(int tagid, object value)
+        {
+            TagInfo taginfo = listTags.Where(p => p.Id == tagid).FirstOrDefault();
+            if (listControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
+            {
+                var device = listControlDevices[taginfo.ConnectDevice.Id];
+                if (device != null)
+                {
+                    device.WriteTag(taginfo, value);
+                }
+            }
+
+
+        }
+        private void SendSCADAConfigurationToApp()
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            mSCADAConfiguration = new SCADAAppConfiguration();
+            mSCADAConfiguration.ControlDatas = mSCADAStationConfiguration.ControlDatas;
+            mSCADAConfiguration.TagInfos = mSCADAStationConfiguration.TagInfos;
+            mSCADAConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
+            mSCADAConfiguration.TagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
+            if (listAlarmPoints.Count > 0)
+            {
+                mSCADAConfiguration.CurrentAlarmPoints = listAlarmPoints;
+            }
+
+            hubContext.Clients.All.DownloadSCADAConfig(mSCADAConfiguration);
+            foreach (var tag in listTags)
+            {
+                SendTagValueToClient(tag.Id, tag.Data);
+            }
+        }
+        private void SCADAHub_GetTrendPoints(int tagloggingid)
+        {
+            List<TrendPoint> trendPointsById = new List<TrendPoint>(SCADAStationDbContext.Instance.TrendPoints.Where(x => x.TagLoggingId == tagloggingid).ToList());
+            var trendPoints = new List<TrendPoint>(trendPointsById.Skip(Math.Max(0, trendPointsById.Count - 60)).ToList());
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.All.WriteCurrentTrendPoints(trendPoints);
+        }
+
+        private void SCADAHub_ClientConnected(string clientId)
+        {
+            SendSCADAConfigurationToApp();
+        }
+        private void SCADAHub_ClientDisconnected(string clientId)
+        {
+            //ConnectDevice al;
+            // throw new NotImplementedException();
         }
         #endregion
     }
