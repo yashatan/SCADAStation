@@ -75,8 +75,9 @@ namespace SCADAStationNetFrameWork
             //tagInfo.Value = "-3005";
             //Trace.WriteLine(tagInfo.Data);
             //Trace.WriteLine(tagInfo.Value);
-            ControlDevice device = new ControlDevice();
-            device.test();
+            //ControlDevice device = new ControlDevice();
+            //device.test();
+            functionalLab.testfunc2();
         }
 
 

@@ -23,6 +23,7 @@ namespace SCADAStationNetFrameWork
         public int Id { get; set; }
         public string Name { get; set; }
         public string MemoryAddress { get; set; }
+        public string NodeId { get; set; }
         public int DeviceAttach { get; set; }
         public enum TagType
         {

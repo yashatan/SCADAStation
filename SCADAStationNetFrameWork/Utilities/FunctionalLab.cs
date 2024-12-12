@@ -25,6 +25,9 @@ using Newtonsoft.Json.Linq;
 using S7.Net.Types;
 using System.Runtime.Serialization.Formatters.Binary;
 
+using Opc.Ua;
+using Opc.Ua.Client;
+
 
 
 namespace SCADAStationNetFrameWork
@@ -89,6 +92,18 @@ namespace SCADAStationNetFrameWork
             //listAlarmPoints.Add(alarmpoint);
             //OnAlarmedAdded();
             //SendAlarmPointToClient(alarmpoint);
+        }
+        public async void testfunc2()
+        {
+            //TagInfo taginfo = listTags.Where(p => p.Name == "testopcwrite").FirstOrDefault();
+            //if (listControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
+            //{
+            //    var device = listControlDevices[taginfo.ConnectDevice.Id];
+            //    if (device != null)
+            //    {
+            //        device.WriteTag(taginfo, Convert);
+            //    }
+            //}
         }
         #region SCADA
         public void LoadConfigFile(string fileName)
@@ -170,9 +185,14 @@ namespace SCADAStationNetFrameWork
             {
                 ControlDevice connectDevice = new ControlDevice(device);
                 await connectDevice.Connect();
+
                 if (connectDevice.ConnectionStatus == "Successful")
                 {
                     listControlDevices.Add(device.Id, connectDevice);
+                    if (device.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
+                    {
+                        connectDevice.SubscribeTags(listTags);
+                    }
                 }
             }
             if (listControlDevices.Count > 0)
@@ -212,7 +232,7 @@ namespace SCADAStationNetFrameWork
                     {
                         long temp = tagInfo.Data;
                         device.ReadTag(tagInfo);
-                        if (temp != tagInfo.Data)
+                        if ((temp != tagInfo.Data) || tagInfo.ConnectDevice.ConnectionType == (int) ConnectDevice.emConnectionType.emOPCUA)
                         {
                             SendTagValueToClient(tagInfo.Id, tagInfo.Data);
                         }

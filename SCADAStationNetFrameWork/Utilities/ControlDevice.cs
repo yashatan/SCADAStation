@@ -6,6 +6,9 @@ using S7.Net;
 using EasyModbus;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Opc.Ua;
+using Opc.Ua.Client;
+using System.Windows.Markup;
 
 namespace SCADAStationNetFrameWork
 {
@@ -16,6 +19,13 @@ namespace SCADAStationNetFrameWork
         Plc plcdevice;
         ModbusClient modbusClient;
         ConnectDevice.emConnectionType currentType;
+
+        private UAClientHelperAPI m_Server = null;
+        private UInt16 m_NameSpaceIndex = 0;
+        private Subscription m_Subscription;
+        private List<TagInfo> OPCTagList;
+        public MonitoredItemNotificationEventHandler OPCTagUpdate;
+
         public ControlDevice()
         {
             //modbusClient = new ModbusClient("192.168.1.50", 502);
@@ -36,7 +46,18 @@ namespace SCADAStationNetFrameWork
                 modbusClient = new ModbusClient(device.Destination, (int)device.ModbusPort);    //Ip-Address and Port of Modbus-TCP-Server
                 modbusClient.UnitIdentifier = device.ModbusDeviceId;    //Ip-Address and Port of Modbus-TCP-Server
             }
+            else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                //Instance and Connect 
+                m_Server = new UAClientHelperAPI();
+                m_Server.CertificateValidationNotification += new CertificateValidationEventHandler(m_Server_CertificateEvent);
+                m_Server.KeepAliveNotification += new KeepAliveEventHandler(Notification_KeepAlive);
+
+                //Set namespace
+                m_NameSpaceIndex = 3;
+            }
         }
+
         public async Task Connect()
         {
 
@@ -45,13 +66,14 @@ namespace SCADAStationNetFrameWork
                 try
                 {
                     await plcdevice.OpenAsync();
+
                     Trace.WriteLine($"Connect to the PLC {currentDevice.Name} {currentDevice.Destination} succesfully");
                     ConnectionStatus = "Successful";
                 }
                 catch
                 {
                     ConnectionStatus = "Fail";
-                    throw;
+                    //throw;
                 }
             }
             else if (currentType == ConnectDevice.emConnectionType.emTCP)
@@ -64,7 +86,20 @@ namespace SCADAStationNetFrameWork
                 catch (Exception ex)
                 {
                     ConnectionStatus = "Fail";
-                    throw;
+                    //throw;
+                }
+            }
+            else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                try
+                {
+                    m_Server.Connect(currentDevice.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
+                    ConnectionStatus = "Successful";
+                }
+                catch (Exception ex)
+                {
+                    ConnectionStatus = "Fail";
+                    //throw;
                 }
             }
         }
@@ -167,6 +202,10 @@ namespace SCADAStationNetFrameWork
                             break;
                     }
                 }
+            }
+            else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                //do noting
             }
         }
 
@@ -277,6 +316,17 @@ namespace SCADAStationNetFrameWork
                     }
                 }
             }
+            else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                NodeId nodetowrite = new NodeId(tag.NodeId, m_NameSpaceIndex);
+                List<string> nodesToWrite = new List<string>();
+                List<string> values = new List<string>();
+
+                nodesToWrite.Add(nodetowrite.ToString());
+                values.Add(value.ToString());
+
+                m_Server.WriteValues(values, nodesToWrite);
+            }
         }
         public void test()
         {
@@ -289,6 +339,7 @@ namespace SCADAStationNetFrameWork
             //Trace.WriteLine(tag.Value);
         }
 
+        #region S7
         CpuType ConvertToCPUType(string type)
         {
             CpuType result = CpuType.S7200;
@@ -308,5 +359,123 @@ namespace SCADAStationNetFrameWork
             }
             return result;
         }
+        #endregion
+
+
+        #region OPCUA
+        public void SubscribeTags(List<TagInfo> taglist)
+        {
+            OPCTagList = new List<TagInfo>();
+            if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                m_Subscription = m_Server.Subscribe(1000);
+                m_Server.ItemChangedNotification += new MonitoredItemNotificationEventHandler(TagValueChanged);
+                foreach (TagInfo tag in taglist)
+                {
+                    if (tag.ConnectDevice.Id == currentDevice.Id)
+                    {
+                        OPCTagList.Add(tag);
+                        m_Server.AddMonitoredItem(m_Subscription, new NodeId(tag.NodeId, m_NameSpaceIndex).ToString(), tag.MemoryAddress, 100);
+                    }
+                }
+            }
+        }
+
+        private void TagValueChanged(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
+        {
+            MonitoredItemNotification notification = e.NotificationValue as MonitoredItemNotification;
+            if (notification == null)
+            {
+                return;
+            }
+            var updatedTags = OPCTagList.Where(m => m.MemoryAddress == monitoredItem.DisplayName).ToList();
+            foreach (var tag in updatedTags)
+            {
+                switch (tag.Type)
+                {
+                    case TagInfo.TagType.eBool:
+                        try
+                        {
+                            var value = Convert.ToBoolean(notification.Value.WrappedValue.Value);
+                            tag.Data = value ? 1L : 0L;
+                        }
+                        catch
+                        {
+
+                        }
+                        //tag.Data = Convert.ToInt16(notification.Value.WrappedValue.Value);
+                        break;
+                    case TagInfo.TagType.eByte:
+                        try
+                        {
+                            var value = Convert.ToSByte(notification.Value.WrappedValue.Value);
+                            tag.Data = (long)(value & 0xFF); ;
+                        }
+                        catch
+                        {
+
+                        }
+                        break;
+                    case TagInfo.TagType.eShort:
+                        try
+                        {
+                            var value = Convert.ToInt16(notification.Value.WrappedValue.Value);
+                            tag.Data = (long)(value & 0xFFFF); ;
+                        }
+                        catch
+                        {
+
+                        }
+                        break;
+                    case TagInfo.TagType.eInt:
+                        try
+                        {
+                            var value = Convert.ToInt32(notification.Value.WrappedValue.Value);
+                            tag.Data = (long)(value & 0xFFFFFFFF); ;
+                        }
+                        catch
+                        {
+
+                        }
+                        break;
+                    case TagInfo.TagType.eReal:
+                        try
+                        {
+                            var value = Convert.ToSingle(notification.Value.WrappedValue.Value);
+                            byte[] floatBytes = BitConverter.GetBytes(value);
+                            tag.Data = BitConverter.ToInt64(new byte[] { floatBytes[0], floatBytes[1], floatBytes[2], floatBytes[3], 0, 0, 0, 0 }, 0);
+                        }
+                        catch
+                        {
+
+                        }
+                        break;
+                    case TagInfo.TagType.eDouble:
+                        try
+                        {
+                            var value = Convert.ToDouble(notification.Value.WrappedValue.Value);
+                            byte[] doubleBytes = BitConverter.GetBytes(value);
+                            tag.Data = BitConverter.ToInt64(doubleBytes, 0); double temp = Convert.ToDouble(value);
+                        }
+                        catch
+                        {
+
+                        }
+                        break;
+                }
+
+            }
+        }
+        private void Notification_KeepAlive(Session session, KeepAliveEventArgs e)
+        {
+//do nothing
+        }
+
+        private void m_Server_CertificateEvent(CertificateValidator sender, CertificateValidationEventArgs e)
+        {
+            // Accept all certificate -> better ask user
+            e.Accept = true;
+        }
+        #endregion
     }
 }
