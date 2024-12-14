@@ -163,7 +163,7 @@
     <Compile Include="Model\AnimationSense.cs" />
     <Compile Include="Model\ControlData.cs" />
     <Compile Include="Model\ProjectInformation.cs" />
-    <Compile Include="Model\SCADAProjectInformation.cs" />
+    <Compile Include="Model\SCADAPage.cs" />
     <Compile Include="Model\TagLoggingSetting.cs" />
     <Compile Include="Model\TrendPoint.cs" />
     <Compile Include="Model\ItemEvent.cs" />

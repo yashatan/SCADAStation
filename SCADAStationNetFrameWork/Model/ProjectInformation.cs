@@ -13,6 +13,7 @@ namespace SCADAStationNetFrameWork
         public string Name { get; set; }
         public string FilePath { get; set; }
         public bool IsNewProject {  get; set; }
+        public int MainPageId { get; set; }
         public string GetDBPath()
         {
             string dbPath;

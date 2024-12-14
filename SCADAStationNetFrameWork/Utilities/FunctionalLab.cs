@@ -51,12 +51,14 @@ namespace SCADAStationNetFrameWork
         public FunctionalLab()
         {
             filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
+            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
         public FunctionalLab(string fileName)
         {
             filePath_SCADAStationConfiguration = fileName;
+            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
@@ -450,7 +452,7 @@ namespace SCADAStationNetFrameWork
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
             mSCADAConfiguration = new SCADAAppConfiguration();
-            mSCADAConfiguration.ControlDatas = mSCADAStationConfiguration.ControlDatas;
+            mSCADAConfiguration.SCADAPages = mSCADAStationConfiguration.SCADAPages;
             mSCADAConfiguration.TagInfos = mSCADAStationConfiguration.TagInfos;
             mSCADAConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
             mSCADAConfiguration.TagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;

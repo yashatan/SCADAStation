@@ -51,6 +51,12 @@ namespace SCADAStationNetFrameWork
             get { return trendViewSettings; }
             set { trendViewSettings = value; }
         }
+        List<SCADAPage> scadaPages;
+        public List<SCADAPage> SCADAPages
+        {
+            get { return scadaPages; }
+            set { scadaPages = value; }
+        }
         public SCADAStationConfiguration()
         {
 
