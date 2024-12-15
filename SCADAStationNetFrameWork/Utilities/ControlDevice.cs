@@ -9,12 +9,13 @@ using System.Diagnostics;
 using Opc.Ua;
 using Opc.Ua.Client;
 using System.Windows.Markup;
+using System.Data;
 
 namespace SCADAStationNetFrameWork
 {
     public class ControlDevice
     {
-        ConnectDevice currentDevice { get; set; }
+        public ConnectDevice DeviceInfo { get; set; }
         public string ConnectionStatus { get; set; }
         Plc plcdevice;
         ModbusClient modbusClient;
@@ -28,14 +29,12 @@ namespace SCADAStationNetFrameWork
 
         public ControlDevice()
         {
-            //modbusClient = new ModbusClient("192.168.1.50", 502);
-            //modbusClient.UnitIdentifier = 255;
-            //currentType = ConnectDevice.emConnectionType.emTCP;
-            //modbusClient.Connect();
+            ConnectionStatus = "Fail";
         }
         public ControlDevice(ConnectDevice device)
         {
-            currentDevice = device;
+            ConnectionStatus = "Fail";
+            DeviceInfo = device;
             currentType = (ConnectDevice.emConnectionType)device.ConnectionType;
             if (currentType == ConnectDevice.emConnectionType.emS7)
             {
@@ -67,7 +66,7 @@ namespace SCADAStationNetFrameWork
                 {
                     await plcdevice.OpenAsync();
 
-                    Trace.WriteLine($"Connect to the PLC {currentDevice.Name} {currentDevice.Destination} succesfully");
+                    Trace.WriteLine($"Connect to the PLC {DeviceInfo.Name} {DeviceInfo.Destination} succesfully");
                     ConnectionStatus = "Successful";
                 }
                 catch
@@ -93,7 +92,7 @@ namespace SCADAStationNetFrameWork
             {
                 try
                 {
-                    m_Server.Connect(currentDevice.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
+                    m_Server.Connect(DeviceInfo.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
                     ConnectionStatus = "Successful";
                 }
                 catch (Exception ex)
@@ -372,7 +371,7 @@ namespace SCADAStationNetFrameWork
                 m_Server.ItemChangedNotification += new MonitoredItemNotificationEventHandler(TagValueChanged);
                 foreach (TagInfo tag in taglist)
                 {
-                    if (tag.ConnectDevice.Id == currentDevice.Id)
+                    if (tag.ConnectDevice.Id == DeviceInfo.Id)
                     {
                         OPCTagList.Add(tag);
                         m_Server.AddMonitoredItem(m_Subscription, new NodeId(tag.NodeId, m_NameSpaceIndex).ToString(), tag.MemoryAddress, 100);

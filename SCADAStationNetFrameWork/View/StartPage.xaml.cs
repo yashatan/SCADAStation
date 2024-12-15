@@ -19,9 +19,12 @@ namespace SCADAStationNetFrameWork
     /// </summary>
     public partial class StartPage : Window
     {
+        string filePath_SCADAStationConfiguration;
         public StartPage()
         {
             InitializeComponent();
+            filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
+            txtFileLocation.Text = filePath_SCADAStationConfiguration;
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
@@ -32,6 +35,26 @@ namespace SCADAStationNetFrameWork
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
 
+            MainWindow mainWindow = new MainWindow(filePath_SCADAStationConfiguration);
+            mainWindow.WindowState = WindowState.Normal;
+            mainWindow.Show();
+            this.Close();
+        }
+
+        private void CloseIcon_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void MinimizeIcon_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void DockPanel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+            this.DragMove();
         }
     }
 }

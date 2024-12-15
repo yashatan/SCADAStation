@@ -7,11 +7,12 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="450"
-        Width="1000">
+        WindowStartupLocation="CenterScreen"
+        Height="650"
+        Width="1100">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Stretch"
@@ -28,47 +29,17 @@
                           Click="MenuItemAlarms_Click"></MenuItem>
                 <MenuItem Header="_Tag logging"
                           Click="MenuItemTagLogging_Click"></MenuItem>
+                <MenuItem Header="_Test1"
+                          Click="TestSend_Click"></MenuItem>
+                <MenuItem Header="_Test2"
+                          Click="Button_Click"></MenuItem>
             </Menu>
-            <TextBlock Name="url"
-                       Height="30"></TextBlock>
-            <Button x:Name="TestSend"
-                    Height="30"
-                    Click="TestSend_Click"></Button>
-            <Button Height="30"
-                    Click="Button_Click"></Button>
+            <Separator VerticalAlignment="Bottom"></Separator>
         </StackPanel>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      VerticalAlignment="Stretch"
-                      Grid.Row="1">
-            <ListView x:Name="lvAlarm"
-                      ScrollViewer.CanContentScroll="False"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Value"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="TrendSettingId"
-                                        Width="250"
-                                        DisplayMemberBinding="{Binding TagLoggingId}" />
-                        <GridViewColumn Header="TimeStamp"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding TimeStamp}" />
-                        <GridViewColumn Header="Acknowledge"
-                                        Width="250">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Width="100"
-                                            x:Name="btnAckAlarm"
-                                            Click="btnAckAlarm_Click">
-                                        <TextBlock Text="ACK"></TextBlock>
-                                    </Button>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </ScrollViewer>
+        <Grid Grid.Row="1"
+              Background="White">
+            <Frame x:Name="ContentView"
+                   NavigationUIVisibility="Hidden"></Frame>
+        </Grid>
     </Grid>
 </Window>

@@ -13,16 +13,30 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SCADAStationNetFrameWork.View
+namespace SCADAStationNetFrameWork
 {
     /// <summary>
     /// Interaction logic for TagsPage.xaml
     /// </summary>
     public partial class TagsPage : Page
     {
+        List<TagInfo> tagslist;
         public TagsPage()
         {
             InitializeComponent();
+        }
+
+        public TagsPage(List<TagInfo> taginfos)
+        {
+            InitializeComponent();
+            tagslist = taginfos;
+            lvTags.ItemsSource = tagslist;
+        }
+
+        private void ListViewItems_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewerPage.ScrollToVerticalOffset(ScrollViewerPage.VerticalOffset - e.Delta / 3); 
+            e.Handled = true;
         }
     }
 }

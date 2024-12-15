@@ -13,6 +13,11 @@
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush x:Key="PrimaryHueMidBrush"
                              Color="Blue" />
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize"
+                        Value="15" />
+            </Style>
         </ResourceDictionary>
+        
     </Application.Resources>
 </Application>

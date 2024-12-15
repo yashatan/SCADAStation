@@ -9,7 +9,9 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanMinimize"
-        Title="StartPage" Height="650" Width="600">
+        Title="StartPage"
+        Height="650"
+        Width="600">
     <Grid>
         <Grid.Background>
             <LinearGradientBrush EndPoint="0.5,1"
@@ -22,10 +24,9 @@
         </Grid.Background>
         <materialDesign:Card Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
                              Padding="8"
-                             Margin="20 20 20 20"
-                             >
-            <StackPanel Width="380"
-                        Height="400">
+                             Margin="20 25 20 20">
+            <StackPanel Width="450"
+                        Height="450">
                 <TextBlock Text="SCADA server"
                            FontSize="30"
                            HorizontalAlignment="Center"
@@ -37,21 +38,21 @@
                 <!--Text box tài khoản-->
                 <StackPanel Orientation="Horizontal"
                             Height="60"
-                            Width="400"
+                            Width="450"
                             Margin="0">
                     <materialDesign:PackIcon Kind="File"
                                              Width="20"
                                              Height="20"
                                              VerticalAlignment="Center"
-                                             Margin="0 0 10 -20"></materialDesign:PackIcon>
+                                             Margin="20 0 10 -20"></materialDesign:PackIcon>
                     <TextBox materialDesign:HintAssist.Hint="File location"
                              materialDesign:HintAssist.Foreground="Blue"
                              materialDesign:TextFieldAssist.UnderlineBrush="Blue"
                              Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                              VerticalAlignment="Center"
                              FontSize="15"
-                             x:Name="txtbUserName"
-                             Width="230"></TextBox>
+                             x:Name="txtFileLocation"
+                             Width="250"></TextBox>
                     <Button Style="{StaticResource MaterialDesignRaisedDarkButton}"
                             Height="50"
                             Width="90"
@@ -67,25 +68,48 @@
                                    FontSize="15" />
                     </Button>
                 </StackPanel>
-
-
-                    <Button Style="{StaticResource MaterialDesignRaisedDarkButton}"
-                            Height="50"
-                            Width="350"
-                            Margin="0 40 0 0"
-                            x:Name="btnLogin"
-                            IsDefault="True"
-                            materialDesign:ButtonAssist.CornerRadius="10"
-                            Background="Blue"
-                            BorderBrush="Transparent"
-                            Command="{Binding LoginCommand}"
-                            CommandParameter="{Binding ElementName=loginWindow}"
-                            Click="btnStart_Click">
-                        <TextBlock Text="Run"
-                                   FontSize="15" />
-                    </Button>
-
+                <Button Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                        Height="50"
+                        Width="350"
+                        Margin="0 40 0 0"
+                        x:Name="btnLogin"
+                        IsDefault="True"
+                        materialDesign:ButtonAssist.CornerRadius="10"
+                        Background="Blue"
+                        BorderBrush="Transparent"
+                        Command="{Binding LoginCommand}"
+                        CommandParameter="{Binding ElementName=loginWindow}"
+                        Click="btnStart_Click">
+                    <TextBlock Text="Run"
+                               FontSize="15" />
+                </Button>
             </StackPanel>
         </materialDesign:Card>
+        <!--Custom Control Bar-->
+        <DockPanel HorizontalAlignment="Stretch"
+                   LastChildFill="False"
+                   VerticalAlignment="Top"
+                   Background="Transparent"
+                   PreviewMouseLeftButtonDown="DockPanel_PreviewMouseLeftButtonDown">
+            <!--Close Image-->
+            <materialDesign:PackIcon Kind="WindowClose"
+                                     DockPanel.Dock="Right"
+                                     Height="25"
+                                     Width="25"
+                                     VerticalAlignment="Top"
+                                     Cursor="Hand"
+                                     Foreground="White"
+                                     PreviewMouseDown="CloseIcon_PreviewMouseDown"></materialDesign:PackIcon>
+            <!--Minimize Image-->
+            <materialDesign:PackIcon Kind="WindowMinimize"
+                                     DockPanel.Dock="Right"
+                                     Height="25"
+                                     Width="25"
+                                     VerticalAlignment="Top"
+                                     Cursor="Hand"
+                                     Foreground="White"
+                                     PreviewMouseDown="MinimizeIcon_PreviewMouseDown"></materialDesign:PackIcon>
+
+        </DockPanel>
     </Grid>
 </Window>

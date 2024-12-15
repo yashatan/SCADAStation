@@ -35,13 +35,14 @@ namespace SCADAStationNetFrameWork
 
     public class FunctionalLab
     {
-        List<TagInfo> listTags;
-        List<ConnectDevice> listDevices;
-        List<AlarmSetting> listAlarmSettings;
+        public List<TagInfo> listTags;
+        public List<ConnectDevice> listDevices;
+        public List<AlarmSetting> listAlarmSettings;
         public List<AlarmPoint> listAlarmPoints;
         public List<TagLoggingSetting> listTagLoggingSettings;
+        public List<ControlDevice> listcontrolDevices;
         SCADAAppConfiguration mSCADAConfiguration;
-        Dictionary<int, ControlDevice> listControlDevices;
+        Dictionary<int, ControlDevice> DictionaryControlDevices;
         private IDisposable _signalR;
         public string url;
         string filePath_SCADAStationConfiguration;
@@ -51,20 +52,20 @@ namespace SCADAStationNetFrameWork
         public FunctionalLab()
         {
             filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
-            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
+            //filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
         public FunctionalLab(string fileName)
         {
             filePath_SCADAStationConfiguration = fileName;
-            filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
+            //filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
         private void Initialize()
         {
-            listControlDevices = new Dictionary<int, ControlDevice>();
+            DictionaryControlDevices = new Dictionary<int, ControlDevice>();
             LoadConfigFile(filePath_SCADAStationConfiguration);
             listTrendPoints = SCADAStationDbContext.Instance.TrendPoints.ToList();
             StartServer();
@@ -89,7 +90,7 @@ namespace SCADAStationNetFrameWork
             //    testtagvalue = true;
             //}
             //SendTagValueToClient(15, 11);
-            await SetupDeviceConnection(listDevices);
+            await SetupDeviceConnection();
             //var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
             //listAlarmPoints.Add(alarmpoint);
             //OnAlarmedAdded();
@@ -119,6 +120,13 @@ namespace SCADAStationNetFrameWork
             listTagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
             listAlarmPoints = new List<AlarmPoint>();
             currentProjectInformation = mSCADAStationConfiguration.ProjectInformation;
+
+            listcontrolDevices = new List<ControlDevice>();
+            foreach (var device in listDevices)
+            {
+                var controldevice = new ControlDevice(device);
+                listcontrolDevices.Add(controldevice);
+            }
             MappingTagInfo();
         }
 
@@ -181,23 +189,22 @@ namespace SCADAStationNetFrameWork
             }
         }
 
-        public async Task SetupDeviceConnection(List<ConnectDevice> deviceList)
+        public async Task SetupDeviceConnection()
         {
-            foreach (var device in deviceList)
+            foreach (var controlDevice in listcontrolDevices)
             {
-                ControlDevice connectDevice = new ControlDevice(device);
-                await connectDevice.Connect();
+                await controlDevice.Connect();
 
-                if (connectDevice.ConnectionStatus == "Successful")
+                if (controlDevice.ConnectionStatus == "Successful")
                 {
-                    listControlDevices.Add(device.Id, connectDevice);
-                    if (device.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
+                    DictionaryControlDevices.Add(controlDevice.DeviceInfo.Id, controlDevice);
+                    if (controlDevice.DeviceInfo.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
                     {
-                        connectDevice.SubscribeTags(listTags);
+                        controlDevice.SubscribeTags(listTags);
                     }
                 }
             }
-            if (listControlDevices.Count > 0)
+            if (DictionaryControlDevices.Count > 0)
             {
                 SetUpTimer();
             }
@@ -227,14 +234,14 @@ namespace SCADAStationNetFrameWork
         {
             foreach (var tagInfo in listTags)
             {
-                if (listControlDevices.ContainsKey(tagInfo.ConnectDevice.Id))
+                if (DictionaryControlDevices.ContainsKey(tagInfo.ConnectDevice.Id))
                 {
-                    var device = listControlDevices[tagInfo.ConnectDevice.Id];
+                    var device = DictionaryControlDevices[tagInfo.ConnectDevice.Id];
                     if (device != null)
                     {
                         long temp = tagInfo.Data;
                         device.ReadTag(tagInfo);
-                        if ((temp != tagInfo.Data) || tagInfo.ConnectDevice.ConnectionType == (int) ConnectDevice.emConnectionType.emOPCUA)
+                        if ((temp != tagInfo.Data) || tagInfo.ConnectDevice.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
                         {
                             SendTagValueToClient(tagInfo.Id, tagInfo.Data);
                         }
@@ -438,9 +445,9 @@ namespace SCADAStationNetFrameWork
         private void SCADAHub_ClientWriteTag(int tagid, object value)
         {
             TagInfo taginfo = listTags.Where(p => p.Id == tagid).FirstOrDefault();
-            if (listControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
+            if (DictionaryControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
             {
-                var device = listControlDevices[taginfo.ConnectDevice.Id];
+                var device = DictionaryControlDevices[taginfo.ConnectDevice.Id];
                 if (device != null)
                 {
                     device.WriteTag(taginfo, value);

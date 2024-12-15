@@ -19,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using MaterialDesignThemes.Wpf;
 
 
 namespace SCADAStationNetFrameWork
@@ -29,29 +30,36 @@ namespace SCADAStationNetFrameWork
     public partial class MainWindow : Window
     {
         FunctionalLab functionalLab;
+        GeneralPage generalPage;
+        DevicesPage devicesPage;
+        AlarmPage alarmPage;
+        TagsPage tagsPage;
         public MainWindow()
         {
             InitializeComponent();
 
             functionalLab = new FunctionalLab();
-            url.Text = $"Server started at:{functionalLab.url}";
-            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
         }
 
-        private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
-        {
-            Dispatcher.Invoke(() => { lvAlarm.Items.Refresh(); });
-        }
+        //private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
+        //{
+        //    Dispatcher.Invoke(() => { lvAlarm.Items.Refresh(); });
+        //}
 
         public MainWindow(string fileName)
         {
             InitializeComponent();
 
             functionalLab = new FunctionalLab(fileName);
-            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
-            url.Text = $"Server started at:{functionalLab.url}";
+            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            if (generalPage == null)
+            {
+                generalPage = new GeneralPage();
+            }
+            this.ContentView.Content = generalPage;
         }
 
         private void TestSend_Click(object sender, RoutedEventArgs e)
@@ -101,22 +109,39 @@ namespace SCADAStationNetFrameWork
 
         private void MenuItemGeneral_Click(object sender, RoutedEventArgs e)
         {
-
+            if (generalPage == null)
+            {
+                generalPage = new GeneralPage();
+            }
+            this.ContentView.Content = generalPage;
         }
 
         private void MenuItemDevices_Click(object sender, RoutedEventArgs e)
         {
+            if (devicesPage == null)
+            {
+                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+            }
 
+            this.ContentView.Content = devicesPage;
         }
 
         private void MenuItemTags_Click(object sender, RoutedEventArgs e)
         {
-
+            if (tagsPage == null)
+            {
+                tagsPage = new TagsPage(functionalLab.listTags);
+            }
+            this.ContentView.Content = tagsPage;
         }
 
         private void MenuItemAlarms_Click(object sender, RoutedEventArgs e)
         {
-
+            if (alarmPage == null)
+            {
+                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+            }
+            this.ContentView.Content = alarmPage;
         }
         #endregion
 

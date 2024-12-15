@@ -13,16 +13,22 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SCADAStationNetFrameWork.View
+namespace SCADAStationNetFrameWork
 {
     /// <summary>
     /// Interaction logic for GeneralPage.xaml
     /// </summary>
     public partial class GeneralPage : Page
     {
+        List<string> deviceList;
         public GeneralPage()
         {
             InitializeComponent();
+            deviceList = new List<string>();
+            deviceList.Add("SAMSUNG M32");
+            deviceList.Add("Iphone 13");
+            lsbMobileList.ItemsSource = deviceList;
+            lsbMobileList.Items.Refresh();
         }
     }
 }
