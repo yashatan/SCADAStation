@@ -1,0 +1,91 @@
+﻿<Window x:Class="SCADAStationNetFrameWork.StartPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SCADAStationNetFrameWork"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="CanMinimize"
+        Title="StartPage" Height="650" Width="600">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1"
+                                 StartPoint="0.5,0">
+                <GradientStop Color="Blue"
+                              Offset="0" />
+                <GradientStop Color="White"
+                              Offset="0.953" />
+            </LinearGradientBrush>
+        </Grid.Background>
+        <materialDesign:Card Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                             Padding="8"
+                             Margin="20 20 20 20"
+                             >
+            <StackPanel Width="380"
+                        Height="400">
+                <TextBlock Text="SCADA server"
+                           FontSize="30"
+                           HorizontalAlignment="Center"
+                           Margin="0 10 0 0"></TextBlock>
+                <Image Source="./../image/01_logobachkhoasang.png"
+                       Height="150"
+                       Margin="0 0 0 0"
+                       Width="200" />
+                <!--Text box tài khoản-->
+                <StackPanel Orientation="Horizontal"
+                            Height="60"
+                            Width="400"
+                            Margin="0">
+                    <materialDesign:PackIcon Kind="File"
+                                             Width="20"
+                                             Height="20"
+                                             VerticalAlignment="Center"
+                                             Margin="0 0 10 -20"></materialDesign:PackIcon>
+                    <TextBox materialDesign:HintAssist.Hint="File location"
+                             materialDesign:HintAssist.Foreground="Blue"
+                             materialDesign:TextFieldAssist.UnderlineBrush="Blue"
+                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             VerticalAlignment="Center"
+                             FontSize="15"
+                             x:Name="txtbUserName"
+                             Width="230"></TextBox>
+                    <Button Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                            Height="50"
+                            Width="90"
+                            Margin="20 0 0 0"
+                            IsDefault="True"
+                            materialDesign:ButtonAssist.CornerRadius="10"
+                            Background="Blue"
+                            BorderBrush="Transparent"
+                            Command="{Binding LoginCommand}"
+                            CommandParameter="{Binding ElementName=loginWindow}"
+                            Click="btnBrowse_Click">
+                        <TextBlock Text="Browse"
+                                   FontSize="15" />
+                    </Button>
+                </StackPanel>
+
+
+                    <Button Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                            Height="50"
+                            Width="350"
+                            Margin="0 40 0 0"
+                            x:Name="btnLogin"
+                            IsDefault="True"
+                            materialDesign:ButtonAssist.CornerRadius="10"
+                            Background="Blue"
+                            BorderBrush="Transparent"
+                            Command="{Binding LoginCommand}"
+                            CommandParameter="{Binding ElementName=loginWindow}"
+                            Click="btnStart_Click">
+                        <TextBlock Text="Run"
+                                   FontSize="15" />
+                    </Button>
+
+            </StackPanel>
+        </materialDesign:Card>
+    </Grid>
+</Window>

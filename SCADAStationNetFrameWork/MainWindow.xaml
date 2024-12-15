@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:SCADAStationNetFrameWork"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="1000">
+        Title="MainWindow"
+        Height="450"
+        Width="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"></RowDefinition>
@@ -14,23 +16,33 @@
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Stretch"
                     Grid.Row="0">
+            <Menu IsMainMenu="True"
+                  DockPanel.Dock="Top">
+                <MenuItem Header="_General"
+                          Click="MenuItemGeneral_Click"></MenuItem>
+                <MenuItem Header="_Devices"
+                          Click="MenuItemDevices_Click"></MenuItem>
+                <MenuItem Header="_Tags"
+                          Click="MenuItemTags_Click"></MenuItem>
+                <MenuItem Header="_Alarms"
+                          Click="MenuItemAlarms_Click"></MenuItem>
+                <MenuItem Header="_Tag logging"
+                          Click="MenuItemTagLogging_Click"></MenuItem>
+            </Menu>
             <TextBlock Name="url"
                        Height="30"></TextBlock>
             <Button x:Name="TestSend"
                     Height="30"
                     Click="TestSend_Click"></Button>
-            <Button 
-                    Height="30"
+            <Button Height="30"
                     Click="Button_Click"></Button>
         </StackPanel>
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       VerticalAlignment="Stretch"
-                      Grid.Row="1"
-                      >
+                      Grid.Row="1">
             <ListView x:Name="lvAlarm"
                       ScrollViewer.CanContentScroll="False"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      >
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Value"

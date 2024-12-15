@@ -416,9 +416,10 @@ namespace SCADAStationNetFrameWork
         }
         public void StartServer()
         {
-            url = $"http://{GetLocalIPAddress()}:8088/SCADA";
+            url = $"http://{GetLocalIPAddress()}:8088/{currentProjectInformation.Name}/signalr";
+            var connect_url = $"http://{GetLocalIPAddress()}:8088/{currentProjectInformation.Name}";
             //txtUrl.Text = url;
-            _signalR = WebApp.Start<Startup>(url);
+            _signalR = WebApp.Start<Startup>(connect_url);
 
         }
         public static string GetLocalIPAddress()

@@ -43,9 +43,9 @@ namespace SCADAStationNetFrameWork
             }
             else
             {
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Show();
+                StartPage startPage = new StartPage();
+                startPage.WindowState = WindowState.Normal;
+                startPage.Show();
             }
 
         }

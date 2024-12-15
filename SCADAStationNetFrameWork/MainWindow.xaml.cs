@@ -87,5 +87,38 @@ namespace SCADAStationNetFrameWork
             var chosenAlarmPoint = button.DataContext as AlarmPoint;
             functionalLab.ACKAlarmPoint(chosenAlarmPoint.Id);
         }
+
+        #region MenuItem
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuItemTagLogging_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuItemGeneral_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuItemDevices_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuItemTags_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuItemAlarms_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
     }
 }
