@@ -12,7 +12,7 @@
         Title="StartPage"
         Height="650"
         Width="600">
-    <Grid>
+    <Grid >
         <Grid.Background>
             <LinearGradientBrush EndPoint="0.5,1"
                                  StartPoint="0.5,0">
@@ -24,6 +24,7 @@
         </Grid.Background>
         <materialDesign:Card Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
                              Padding="8"
+                             UniformCornerRadius="10"
                              Margin="20 25 20 20">
             <StackPanel Width="450"
                         Height="450">
@@ -45,7 +46,7 @@
                                              Height="20"
                                              VerticalAlignment="Center"
                                              Margin="20 0 10 -20"></materialDesign:PackIcon>
-                    <TextBox materialDesign:HintAssist.Hint="File location"
+                    <TextBox materialDesign:HintAssist.Hint="Project location"
                              materialDesign:HintAssist.Foreground="Blue"
                              materialDesign:TextFieldAssist.UnderlineBrush="Blue"
                              Style="{StaticResource MaterialDesignFloatingHintTextBox}"

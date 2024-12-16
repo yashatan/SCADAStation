@@ -34,6 +34,7 @@ namespace SCADAStationNetFrameWork
         DevicesPage devicesPage;
         AlarmPage alarmPage;
         TagsPage tagsPage;
+        TagLoggingPage tagLoggingPage;
         public MainWindow()
         {
             InitializeComponent();
@@ -105,6 +106,11 @@ namespace SCADAStationNetFrameWork
         private void MenuItemTagLogging_Click(object sender, RoutedEventArgs e)
         {
 
+            if (tagLoggingPage == null)
+            {
+                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+            }
+            this.ContentView.Content = tagLoggingPage;
         }
 
         private void MenuItemGeneral_Click(object sender, RoutedEventArgs e)

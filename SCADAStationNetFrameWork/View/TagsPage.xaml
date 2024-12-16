@@ -4,38 +4,44 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:SCADAStationNetFrameWork"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
+      Background="AliceBlue"
       Title="TagsPage">
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      x:Name="ScrollViewerPage">
-            <ListView x:Name="lvTags"
-                      VerticalAlignment="Stretch"
-                      ScrollViewer.CanContentScroll="True"
-                      PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="Address"
-                                        Width="250"
-                                        DisplayMemberBinding="{Binding MemoryAddress}" />
-                        <GridViewColumn Header="Device"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding ConnectDevice.Name}" />
-                        <GridViewColumn Header="Type"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Type}" />
-                        <GridViewColumn Header="Value"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Value}" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </ScrollViewer>
+        <materialDesign:Card Margin="5 5 5 0"
+                             Padding="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Background="White"
+                          x:Name="ScrollViewerPage">
+                <ListView x:Name="lvTags"
+                          VerticalAlignment="Stretch"
+                          ScrollViewer.CanContentScroll="True"
+                          PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding Name}" />
+                            <GridViewColumn Header="Address"
+                                            Width="250"
+                                            DisplayMemberBinding="{Binding MemoryAddress}" />
+                            <GridViewColumn Header="Device"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding ConnectDevice.Name}" />
+                            <GridViewColumn Header="Type"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding Type}" />
+                            <GridViewColumn Header="Value"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding Value}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+        </materialDesign:Card>
     </Grid>
 </Page>

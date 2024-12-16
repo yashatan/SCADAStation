@@ -4,50 +4,55 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:SCADAStationNetFrameWork"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d"
       d:DesignHeight="450"
+      Background="AliceBlue"
       d:DesignWidth="800"
       Title="AlarmPage">
     <Page.Resources>
         <local:EnumToAlarmTypeConverter x:Key="EnumToAlarmTypeConverter" />
     </Page.Resources>
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      x:Name="ScrollViewerPage"
-                      VerticalAlignment="Stretch">
-            <ListView x:Name="lvAlarm"
-                      ScrollViewer.CanContentScroll="False"
-                      PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="Content"
-                                        Width="250"
-                                        DisplayMemberBinding="{Binding Text}" />
-                        <GridViewColumn Header="Type"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding Type, Converter={StaticResource EnumToAlarmTypeConverter}}" />
-                        <GridViewColumn Header="TimeStamp"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding TimeStamp}" />
-                        <GridViewColumn Header="Acknowledge"
-                                        Width="250">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Width="100"
-                                            x:Name="btnAckAlarm"
-                                            Click="btnAckAlarm_Click">
-                                        <TextBlock Text="ACK"></TextBlock>
-                                    </Button>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </ScrollViewer>
+        <materialDesign:Card Margin="5 5 5 0"
+                             Padding="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          x:Name="ScrollViewerPage"
+                          VerticalAlignment="Stretch">
+                <ListView x:Name="lvAlarm"
+                          ScrollViewer.CanContentScroll="False"
+                          PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding Name}" />
+                            <GridViewColumn Header="Content"
+                                            Width="250"
+                                            DisplayMemberBinding="{Binding Text}" />
+                            <GridViewColumn Header="Type"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding Type, Converter={StaticResource EnumToAlarmTypeConverter}}" />
+                            <GridViewColumn Header="TimeStamp"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding TimeStamp}" />
+                            <GridViewColumn Header="Acknowledge"
+                                            Width="250">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="100"
+                                                x:Name="btnAckAlarm"
+                                                Click="btnAckAlarm_Click">
+                                            <TextBlock Text="ACK"></TextBlock>
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+        </materialDesign:Card>
     </Grid>
 </Page>

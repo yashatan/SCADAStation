@@ -174,6 +174,7 @@
     <Compile Include="SCADAHub.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\ControlDevice.cs" />
+    <Compile Include="Utilities\DecimalTextBox.cs" />
     <Compile Include="Utilities\FunctionalLab.cs" />
     <Compile Include="Utilities\UAClientHelperAPI.cs" />
     <Compile Include="View\AlarmsPage.xaml.cs">
@@ -188,8 +189,8 @@
     <Compile Include="View\StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\TagLoggingPages.xaml.cs">
-      <DependentUpon>TagLoggingPages.xaml</DependentUpon>
+    <Compile Include="View\TagLoggingPage.xaml.cs">
+      <DependentUpon>TagLoggingPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TagsPage.xaml.cs">
       <DependentUpon>TagsPage.xaml</DependentUpon>
@@ -222,7 +223,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\TagLoggingPages.xaml">
+    <Page Include="View\TagLoggingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

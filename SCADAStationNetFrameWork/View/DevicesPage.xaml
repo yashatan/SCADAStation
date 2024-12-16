@@ -4,39 +4,44 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:SCADAStationNetFrameWork"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
+      Background="AliceBlue"
       Title="DevicesPage">
     <Page.Resources>
         <local:EnumToTypeConnectionConverter x:Key="EnumToTypeConnectionConverter" />
     </Page.Resources>
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      x:Name="ScrollViewerPage"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch">
-            <ListView x:Name="lvDevices"
-                      ScrollViewer.CanContentScroll="False"
-                      PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Name"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding DeviceInfo.Name}" />
-                        <GridViewColumn Header="Destination"
-                                        Width="250"
-                                        DisplayMemberBinding="{Binding DeviceInfo.Destination}" />
-                        <GridViewColumn Header="Connection Type"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding DeviceInfo.ConnectionType, Converter={StaticResource EnumToTypeConnectionConverter}}" />
-                        <GridViewColumn Header="Connection Status"
-                                        Width="200"
-                                        DisplayMemberBinding="{Binding ConnectionStatus}" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </ScrollViewer>
+        <materialDesign:Card Margin="5 5 5 0"
+                             Padding="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          x:Name="ScrollViewerPage"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+                <ListView x:Name="lvDevices"
+                          ScrollViewer.CanContentScroll="False"
+                          PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding DeviceInfo.Name}" />
+                            <GridViewColumn Header="Destination"
+                                            Width="250"
+                                            DisplayMemberBinding="{Binding DeviceInfo.Destination}" />
+                            <GridViewColumn Header="Connection Type"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding DeviceInfo.ConnectionType, Converter={StaticResource EnumToTypeConnectionConverter}}" />
+                            <GridViewColumn Header="Connection Status"
+                                            Width="200"
+                                            DisplayMemberBinding="{Binding ConnectionStatus}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
+        </materialDesign:Card>
     </Grid>
 </Page>
