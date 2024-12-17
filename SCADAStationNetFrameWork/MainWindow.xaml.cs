@@ -59,6 +59,7 @@ namespace SCADAStationNetFrameWork
             if (generalPage == null)
             {
                 generalPage = new GeneralPage();
+                generalPage.setUrl(functionalLab.url);
             }
             this.ContentView.Content = generalPage;
         }
@@ -119,6 +120,7 @@ namespace SCADAStationNetFrameWork
             {
                 generalPage = new GeneralPage();
             }
+
             this.ContentView.Content = generalPage;
         }
 

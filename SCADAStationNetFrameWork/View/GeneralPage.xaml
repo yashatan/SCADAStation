@@ -52,7 +52,18 @@
                 <StackPanel Orientation="Horizontal"
                             Margin="0 15 0 0">
                     <TextBlock Text="Server URL: "></TextBlock>
-                    <TextBlock Text="http://192.168.1.154:8088/DemoSCADA/signalr"></TextBlock>
+                    <TextBox IsReadOnly="True"
+                             BorderThickness="0"
+                             x:Name="txtUrl"
+                             FontSize="15"
+                             Text="http://192.168.1.154:8088/DemoSCADA/signalr">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Background"
+                                        Value="Transparent"></Setter>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
                             Margin="0 15 0 0">

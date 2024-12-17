@@ -425,7 +425,6 @@ namespace SCADAStationNetFrameWork
         {
             url = $"http://{GetLocalIPAddress()}:8088/{currentProjectInformation.Name}/signalr";
             var connect_url = $"http://{GetLocalIPAddress()}:8088/{currentProjectInformation.Name}";
-            //txtUrl.Text = url;
             _signalR = WebApp.Start<Startup>(connect_url);
 
         }
@@ -437,6 +436,7 @@ namespace SCADAStationNetFrameWork
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
                     if (ip.ToString().Contains("0.50")) { continue; }
+                    if (ip.ToString().Contains("172.")) { continue; }
                     return ip.ToString();
                 }
             }

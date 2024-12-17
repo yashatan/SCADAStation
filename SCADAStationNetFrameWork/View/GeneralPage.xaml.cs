@@ -21,6 +21,7 @@ namespace SCADAStationNetFrameWork
     public partial class GeneralPage : Page
     {
         List<string> deviceList;
+        public string url;
         public GeneralPage()
         {
             InitializeComponent();
@@ -29,6 +30,11 @@ namespace SCADAStationNetFrameWork
             deviceList.Add("Iphone 13");
             lsbMobileList.ItemsSource = deviceList;
             lsbMobileList.Items.Refresh();
+            txtUrl.Text = url;
+        }
+        public void setUrl(string url)
+        {
+            txtUrl.Text = url;
         }
     }
 }
