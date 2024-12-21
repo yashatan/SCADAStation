@@ -27,6 +27,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using Opc.Ua;
 using Opc.Ua.Client;
+using System.Diagnostics.Eventing.Reader;
 
 
 
@@ -49,6 +50,7 @@ namespace SCADAStationNetFrameWork
         private SCADAStationConfiguration mSCADAStationConfiguration;
         public static ProjectInformation currentProjectInformation;
         public List<TrendPoint> listTrendPoints;
+        public bool LoadFileStatus {  get; set; }
         public FunctionalLab()
         {
             filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
@@ -59,21 +61,24 @@ namespace SCADAStationNetFrameWork
         public FunctionalLab(string fileName)
         {
             filePath_SCADAStationConfiguration = fileName;
-            //filePath_SCADAStationConfiguration = "E:\\SCADAProject\\DemoSCADA\\DemoSCADAStation.json";
             Initialize();
         }
 
         private void Initialize()
         {
             DictionaryControlDevices = new Dictionary<int, ControlDevice>();
-            LoadConfigFile(filePath_SCADAStationConfiguration);
-            listTrendPoints = SCADAStationDbContext.Instance.TrendPoints.ToList();
-            StartServer();
-            SCADAHub.ClientConnected += SCADAHub_ClientConnected;
-            SCADAHub.ClientDisconnected += SCADAHub_ClientDisconnected;
-            SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
-            SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
-            SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
+            LoadFileStatus = LoadConfigFile(filePath_SCADAStationConfiguration);
+            if (LoadFileStatus)
+            {
+                listTrendPoints = SCADAStationDbContext.Instance.TrendPoints.ToList();
+                StartServer();
+                SCADAHub.ClientConnected += SCADAHub_ClientConnected;
+                SCADAHub.ClientDisconnected += SCADAHub_ClientDisconnected;
+                SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
+                SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
+                SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
+            }
+
         }
 
         //bool testtagvalue;
@@ -109,11 +114,15 @@ namespace SCADAStationNetFrameWork
             //}
         }
         #region SCADA
-        public void LoadConfigFile(string fileName)
+        public bool LoadConfigFile(string fileName)
         {
             Trace.WriteLine($"Starting reading file");
             mSCADAStationConfiguration = new SCADAStationConfiguration();
             mSCADAStationConfiguration = Deserialize_SCADAStationConfiguration(fileName);
+            if ( mSCADAStationConfiguration == null)
+            {
+                return false;
+            }
             listTags = mSCADAStationConfiguration.TagInfos;
             listDevices = mSCADAStationConfiguration.ConnectDevices;
             listAlarmSettings = mSCADAStationConfiguration.AlarmSettings;
@@ -128,6 +137,7 @@ namespace SCADAStationNetFrameWork
                 listcontrolDevices.Add(controldevice);
             }
             MappingTagInfo();
+            return true;
         }
 
         CpuType ConvertToCPUType(string type)
@@ -152,11 +162,19 @@ namespace SCADAStationNetFrameWork
 
         public static SCADAStationConfiguration Deserialize_SCADAStationConfiguration(string filePath)
         {
+            try
+            {
+                string jsonString = File.ReadAllText(filePath);
+                var stationConfiguration = new SCADAStationConfiguration();
+                stationConfiguration = JsonSerializer.Deserialize<SCADAStationConfiguration>(jsonString);
+                return stationConfiguration;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Configuration file is invalid. Plesae check again");
+                return null;
+            }
 
-            string jsonString = File.ReadAllText(filePath);
-            var stationConfiguration = new SCADAStationConfiguration();
-            stationConfiguration = JsonSerializer.Deserialize<SCADAStationConfiguration>(jsonString);
-            return stationConfiguration;
         }
         public static List<TagInfo> Deserialize_Tags(string filePath)
         {

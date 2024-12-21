@@ -20,11 +20,13 @@ namespace SCADAStationNetFrameWork
     public partial class StartPage : Window
     {
         string filePath_SCADAStationConfiguration;
+        FunctionalLab FunctionalLab;
         public StartPage()
         {
             InitializeComponent();
             filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
             txtFileLocation.Text = filePath_SCADAStationConfiguration;
+
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
@@ -34,11 +36,16 @@ namespace SCADAStationNetFrameWork
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            filePath_SCADAStationConfiguration = txtFileLocation.Text;
+            FunctionalLab = new FunctionalLab(filePath_SCADAStationConfiguration);
+            if (FunctionalLab.LoadFileStatus)
+            {
+                MainWindow mainWindow = new MainWindow(FunctionalLab);
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Show();
+                this.Close();
+            }
 
-            MainWindow mainWindow = new MainWindow(filePath_SCADAStationConfiguration);
-            mainWindow.WindowState = WindowState.Normal;
-            mainWindow.Show();
-            this.Close();
         }
 
         private void CloseIcon_PreviewMouseDown(object sender, MouseButtonEventArgs e)

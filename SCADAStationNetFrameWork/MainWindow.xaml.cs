@@ -49,11 +49,11 @@ namespace SCADAStationNetFrameWork
         //    Dispatcher.Invoke(() => { lvAlarm.Items.Refresh(); });
         //}
 
-        public MainWindow(string fileName)
+        public MainWindow(FunctionalLab pfunctionalLab)
         {
             InitializeComponent();
 
-            functionalLab = new FunctionalLab(fileName);
+            functionalLab = pfunctionalLab;
             //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
             //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
             if (generalPage == null)
@@ -63,6 +63,21 @@ namespace SCADAStationNetFrameWork
             }
             this.ContentView.Content = generalPage;
         }
+        public MainWindow(string filename)
+        {
+            InitializeComponent();
+
+            functionalLab = new FunctionalLab(filename);
+            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            if (generalPage == null)
+            {
+                generalPage = new GeneralPage();
+                generalPage.setUrl(functionalLab.url);
+            }
+            this.ContentView.Content = generalPage;
+        }
+
 
         private void TestSend_Click(object sender, RoutedEventArgs e)
         {
