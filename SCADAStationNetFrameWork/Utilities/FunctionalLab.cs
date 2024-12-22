@@ -176,22 +176,22 @@ namespace SCADAStationNetFrameWork
             }
 
         }
-        public static List<TagInfo> Deserialize_Tags(string filePath)
-        {
+        //public static List<TagInfo> Deserialize_Tags(string filePath)
+        //{
 
-            string jsonString = File.ReadAllText(filePath);
-            var listTags = new List<TagInfo>();
-            listTags = JsonSerializer.Deserialize<List<TagInfo>>(jsonString);
-            return listTags;
-        }
-        public static List<ConnectDevice> Deserialize_ConnectDevice(string filePath)
-        {
+        //    string jsonString = File.ReadAllText(filePath);
+        //    var listTags = new List<TagInfo>();
+        //    listTags = JsonSerializer.Deserialize<List<TagInfo>>(jsonString);
+        //    return listTags;
+        //}
+        //public static List<ConnectDevice> Deserialize_ConnectDevice(string filePath)
+        //{
 
-            string jsonString = File.ReadAllText(filePath);
-            var listDevices = new List<ConnectDevice>();
-            listDevices = JsonSerializer.Deserialize<List<ConnectDevice>>(jsonString);
-            return listDevices;
-        }
+        //    string jsonString = File.ReadAllText(filePath);
+        //    var listDevices = new List<ConnectDevice>();
+        //    listDevices = JsonSerializer.Deserialize<List<ConnectDevice>>(jsonString);
+        //    return listDevices;
+        //}
         #endregion
 
         #region PLC
@@ -213,9 +213,10 @@ namespace SCADAStationNetFrameWork
             {
                 await controlDevice.Connect();
 
-                if (controlDevice.ConnectionStatus == "Successful")
+                if (controlDevice.ConnectionStatus == "Connected")
                 {
                     DictionaryControlDevices.Add(controlDevice.DeviceInfo.Id, controlDevice);
+                    OnDeviceUpdated();
                     if (controlDevice.DeviceInfo.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
                     {
                         controlDevice.SubscribeTags(listTags);
@@ -262,6 +263,7 @@ namespace SCADAStationNetFrameWork
                         if ((temp != tagInfo.Data) || tagInfo.ConnectDevice.ConnectionType == (int)ConnectDevice.emConnectionType.emOPCUA)
                         {
                             SendTagValueToClient(tagInfo.Id, tagInfo.Data);
+                            OnTagUpdated();
                         }
                     }
                 }
@@ -375,13 +377,13 @@ namespace SCADAStationNetFrameWork
                 _AlarmAdded(this, new EventArgs());
             }
         }
+
+
         private void SCADAHub_AcknowledegeAlarmPoint(int alarmpointId)
         {
             listAlarmPoints.RemoveAll(m => m.Id == alarmpointId);
             OnAlarmedAdded();
         }
-
-
         #endregion
 
         #region Trend
@@ -392,21 +394,21 @@ namespace SCADAStationNetFrameWork
                 TagLogging.currentDuration += 0.5;
                 if (TagLogging.currentDuration >= TagLogging.GetTimeCycle())
                 {
-                    int value = 0;
+                    double value = 0;
                     if (TagLogging.Tag.Type == TagInfo.TagType.eReal)
                     {
                         var temp = Convert.ToSingle(TagLogging.Tag.Value);
-                        value = Convert.ToInt32(temp);
+                        value = (double) temp;
                     }
                     else if (TagLogging.Tag.Type == TagInfo.TagType.eDouble)
                     {
                         var temp = Convert.ToDouble(TagLogging.Tag.Value);
-                        value = Convert.ToInt32(temp);
+                        value = temp;
 
                     }
                     else
                     {
-                        value = Convert.ToInt32(TagLogging.Tag.Value);
+                        value = (double) Convert.ToInt32(TagLogging.Tag.Value);
                     }
                     var trendPoint = new TrendPoint(TagLogging.Id, value, System.DateTime.Now);
                     SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
@@ -509,6 +511,50 @@ namespace SCADAStationNetFrameWork
         {
             //ConnectDevice al;
             // throw new NotImplementedException();
+        }
+        #endregion
+
+        #region Event
+        private event EventHandler _TagUpdated;
+        public event EventHandler TagUpdated
+        {
+            add
+            {
+                _TagUpdated += value;
+            }
+            remove
+            {
+                _TagUpdated -= value;
+            }
+        }
+
+        void OnTagUpdated()
+        {
+            if (_TagUpdated != null)
+            {
+                _TagUpdated(this, new EventArgs());
+            }
+        }
+
+        private event EventHandler _DeviceUpdated;
+        public event EventHandler DeviceUpdated
+        {
+            add
+            {
+                _DeviceUpdated += value;
+            }
+            remove
+            {
+                _DeviceUpdated -= value;
+            }
+        }
+
+        void OnDeviceUpdated()
+        {
+            if (_DeviceUpdated != null)
+            {
+                _DeviceUpdated(this, new EventArgs());
+            }
         }
         #endregion
     }

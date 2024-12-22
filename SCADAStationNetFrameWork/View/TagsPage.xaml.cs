@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,16 @@ namespace SCADAStationNetFrameWork
         {
             ScrollViewerPage.ScrollToVerticalOffset(ScrollViewerPage.VerticalOffset - e.Delta / 3); 
             e.Handled = true;
+        }
+
+        public void Refresh()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                lvTags.Items.Refresh();
+            });
+
+
         }
     }
 }

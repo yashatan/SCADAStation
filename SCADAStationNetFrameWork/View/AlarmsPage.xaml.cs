@@ -31,12 +31,13 @@ namespace SCADAStationNetFrameWork
         {
             InitializeComponent();
             alarmpointsList = alarmPoints;
-            var testpoint = new AlarmPoint() { 
+            var testpoint = new AlarmPoint()
+            {
                 Id = 4,
-            Name = "Test",
-            Text = "Test Content",
-            Type = AlarmSetting.AlarmType.Error,
-            TimeStamp = DateTime.Now,
+                Name = "Test",
+                Text = "Test Content",
+                Type = AlarmSetting.AlarmType.Error,
+                TimeStamp = DateTime.Now,
             };
             alarmpointsList.Add(testpoint);
             lvAlarm.ItemsSource = alarmpointsList;
@@ -54,6 +55,14 @@ namespace SCADAStationNetFrameWork
         {
             ScrollViewerPage.ScrollToVerticalOffset(ScrollViewerPage.VerticalOffset - e.Delta / 3);
             e.Handled = true;
+        }
+
+        public void Refresh()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                lvAlarm.Items.Refresh();
+            });
         }
     }
 

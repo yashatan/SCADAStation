@@ -31,7 +31,7 @@
                 <MenuItem Header="_Tag logging"
                           Click="MenuItemTagLogging_Click"></MenuItem>
                 <MenuItem Header="_Test1"
-                          Visibility="Collapsed"
+                          Visibility="Visible"
                           Click="TestSend_Click"></MenuItem>
                 <MenuItem Header="_Test2"
                           Visibility="Collapsed"

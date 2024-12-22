@@ -6,7 +6,7 @@ using Microsoft.AspNet.SignalR;
 namespace SCADAStationNetFrameWork
 {
     public delegate void ClientConnectionEventHandler(string clientId);
-    //public delegate void ClientNameChangedEventHandler(string clientId, string newName);
+    public delegate void ClientNameChangedEventHandler(string clientId, string newName);
     //public delegate void ClientGroupEventHandler(string clientId, string groupName);
 
     //public delegate void MessageReceivedEventHandler(string senderClientId, string message);
@@ -27,7 +27,7 @@ namespace SCADAStationNetFrameWork
         public static event GetAlarmValueEventHandler  ClientGetAlarmValue;
         public static event AcknowledgeAlarmPointEventHandler AcknowledgeAlarmPoint;
         public static event GetTrendPointsEventHandler ClientGetTrendPoints;
-        //public static event ClientNameChangedEventHandler ClientNameChanged;
+        public static event ClientNameChangedEventHandler ClientNameChanged;
         //
         //public static event ClientGroupEventHandler ClientJoinedToGroup;
         //public static event ClientGroupEventHandler ClientLeftGroup;
@@ -86,14 +86,15 @@ namespace SCADAStationNetFrameWork
             ClientGetTrendPoints?.Invoke(trendsettingid);
 
         }
+        public void SetUserName(string userName)
+        {
+            _users[Context.ConnectionId] = userName;
+
+            ClientNameChanged?.Invoke(Context.ConnectionId, userName);
+        }
         #region Client Methods
 
-        //public void SetUserName(string userName)
-        //{
-        //    _users[Context.ConnectionId] = userName;
 
-        //    ClientNameChanged?.Invoke(Context.ConnectionId, userName);
-        //}
 
         //public async Task JoinGroup(string groupName)
         //{

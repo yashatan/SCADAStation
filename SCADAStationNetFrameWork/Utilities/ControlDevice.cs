@@ -67,7 +67,7 @@ namespace SCADAStationNetFrameWork
                     await plcdevice.OpenAsync();
 
                     Trace.WriteLine($"Connect to the PLC {DeviceInfo.Name} {DeviceInfo.Destination} succesfully");
-                    ConnectionStatus = "Successful";
+                    ConnectionStatus = "Connected";
                 }
                 catch
                 {
@@ -80,7 +80,7 @@ namespace SCADAStationNetFrameWork
                 try
                 {
                     modbusClient.Connect();
-                    ConnectionStatus = "Successful";
+                    ConnectionStatus = "Connected";
                 }
                 catch (Exception ex)
                 {
@@ -93,7 +93,7 @@ namespace SCADAStationNetFrameWork
                 try
                 {
                     m_Server.Connect(DeviceInfo.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
-                    ConnectionStatus = "Successful";
+                    ConnectionStatus = "Connected";
                 }
                 catch (Exception ex)
                 {

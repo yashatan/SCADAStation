@@ -44,25 +44,55 @@ namespace SCADAStationNetFrameWork
             //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
         }
 
-        //private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
-        //{
-        //    Dispatcher.Invoke(() => { lvAlarm.Items.Refresh(); });
-        //}
-
         public MainWindow(FunctionalLab pfunctionalLab)
         {
             InitializeComponent();
 
             functionalLab = pfunctionalLab;
-            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            functionalLab.TagUpdated += FunctionalLab_TagUpdated;
+            functionalLab.DeviceUpdated += FunctionalLab_DeviceUpdated;
             //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
             if (generalPage == null)
             {
                 generalPage = new GeneralPage();
                 generalPage.setUrl(functionalLab.url);
             }
+            if (devicesPage == null)
+            {
+                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+            }
+            if (alarmPage == null)
+            {
+                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+            }
+            if (tagsPage == null)
+            {
+                tagsPage = new TagsPage(functionalLab.listTags);
+            }
+            if (tagLoggingPage == null)
+            {
+                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+            }
+
             this.ContentView.Content = generalPage;
         }
+
+        private void FunctionalLab_DeviceUpdated(object sender, EventArgs e)
+        {
+            devicesPage.Refresh();
+        }
+
+        private void FunctionalLab_AlarmAdded(object sender, EventArgs e)
+        {
+            alarmPage.Refresh();
+        }
+
+        private void FunctionalLab_TagUpdated(object sender, EventArgs e)
+        {
+            tagsPage.Refresh();
+        }
+
         public MainWindow(string filename)
         {
             InitializeComponent();
@@ -86,22 +116,6 @@ namespace SCADAStationNetFrameWork
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //TrendPoint trendPoint = new TrendPoint() { TimeStamp = DateTime.Now, Value = 12.0, TagLoggingId = 0 };
-            ////context.TrendPoints.Add(trendPoint);
-            ////SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
-            //functionalLab.SendTrendPointToClient(trendPoint);
-            //SCADAStationDbContext.Instance.SaveChanges();
-
-            //TagInfo tagInfo = new TagInfo();
-            //tagInfo.Type = TagInfo.TagType.eDouble;
-            //tagInfo.BitPosition = 1;
-            //tagInfo.Data = 1085276160;
-            //Trace.WriteLine(tagInfo.Value);
-            //tagInfo.Value = "-3005";
-            //Trace.WriteLine(tagInfo.Data);
-            //Trace.WriteLine(tagInfo.Value);
-            //ControlDevice device = new ControlDevice();
-            //device.test();
             functionalLab.testfunc2();
         }
 
@@ -110,7 +124,7 @@ namespace SCADAStationNetFrameWork
         {
             var button = sender as Button;
             var chosenAlarmPoint = button.DataContext as AlarmPoint;
-            functionalLab.ACKAlarmPoint(chosenAlarmPoint.Id);
+            //functionalLab.ACKAlarmPoint(chosenAlarmPoint.Id);
         }
 
         #region MenuItem
