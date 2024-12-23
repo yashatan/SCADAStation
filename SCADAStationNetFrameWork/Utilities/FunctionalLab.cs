@@ -42,6 +42,7 @@ namespace SCADAStationNetFrameWork
         public List<AlarmPoint> listAlarmPoints;
         public List<TagLoggingSetting> listTagLoggingSettings;
         public List<ControlDevice> listcontrolDevices;
+        public List<ClientItem> listClient;
         SCADAAppConfiguration mSCADAConfiguration;
         Dictionary<int, ControlDevice> DictionaryControlDevices;
         private IDisposable _signalR;
@@ -67,6 +68,7 @@ namespace SCADAStationNetFrameWork
         private void Initialize()
         {
             DictionaryControlDevices = new Dictionary<int, ControlDevice>();
+            listClient = new List<ClientItem>();
             LoadFileStatus = LoadConfigFile(filePath_SCADAStationConfiguration);
             if (LoadFileStatus)
             {
@@ -77,9 +79,12 @@ namespace SCADAStationNetFrameWork
                 SCADAHub.ClientWriteTag += SCADAHub_ClientWriteTag;
                 SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
                 SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
+                SCADAHub.ClientNameChanged += SCADAHub_ClientNameChanged;
             }
 
         }
+
+
 
         //bool testtagvalue;
         public async void testfunc()
@@ -505,12 +510,22 @@ namespace SCADAStationNetFrameWork
 
         private void SCADAHub_ClientConnected(string clientId)
         {
+            listClient.Add(new ClientItem(clientId, clientId));
             SendSCADAConfigurationToApp();
         }
         private void SCADAHub_ClientDisconnected(string clientId)
         {
-            //ConnectDevice al;
-            // throw new NotImplementedException();
+            //listClient.Add(new ClientItem(clientId, clientId));
+        }
+
+        private void SCADAHub_ClientNameChanged(string clientId, string newName)
+        {
+            var client = listClient.FirstOrDefault(p=>p.ConnectionID == clientId);
+            if (client != null)
+            {
+                client.Name = newName;
+                OnNewClientConnected();
+            }
         }
         #endregion
 
@@ -554,6 +569,27 @@ namespace SCADAStationNetFrameWork
             if (_DeviceUpdated != null)
             {
                 _DeviceUpdated(this, new EventArgs());
+            }
+        }
+
+        private event EventHandler _NewClientConnected;
+        public event EventHandler NewClientConnected
+        {
+            add
+            {
+                _NewClientConnected += value;
+            }
+            remove
+            {
+                _DeviceUpdated -= value;
+            }
+        }
+
+        void OnNewClientConnected()
+        {
+            if (_NewClientConnected != null)
+            {
+                _NewClientConnected(this, new EventArgs());
             }
         }
         #endregion

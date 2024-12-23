@@ -47,7 +47,7 @@
             <StackPanel Margin=" 20 50 0 0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Project Name: "></TextBlock>
-                    <TextBlock Text="DemoSCADA"></TextBlock>
+                    <TextBlock x:Name="txtProjectName"></TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
                             Margin="0 15 0 0">
@@ -79,7 +79,7 @@
                          ItemContainerStyle="{DynamicResource ListBoxItemStyle1}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding}"></TextBlock>
+                            <TextBlock Text="{Binding Name}"></TextBlock>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

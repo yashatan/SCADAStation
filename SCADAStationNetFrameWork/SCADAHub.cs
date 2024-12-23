@@ -62,29 +62,17 @@ namespace SCADAStationNetFrameWork
 
         public void WriteTag(int tagid, object value)
         {
-            // string userName;
-            // _users.TryRemove(Context.ConnectionId, out userName);
-
             ClientWriteTag?.Invoke(tagid, value);
-
         }
 
         public void AckAlarmPoint(int alarmId)
         {
-            // string userName;
-            // _users.TryRemove(Context.ConnectionId, out userName);
-
             AcknowledgeAlarmPoint?.Invoke(alarmId);
-
         }
 
         public void GetTrendPoints(int trendsettingid)
         {
-            // string userName;
-            // _users.TryRemove(Context.ConnectionId, out userName);
-
             ClientGetTrendPoints?.Invoke(trendsettingid);
-
         }
         public void SetUserName(string userName)
         {

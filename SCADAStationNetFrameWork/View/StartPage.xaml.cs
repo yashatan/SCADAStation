@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,13 @@ namespace SCADAStationNetFrameWork
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
-
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Configuration files (*Station.json)|*Station.json|All files (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                filePath_SCADAStationConfiguration = openFileDialog.FileName;
+                txtFileLocation.Text = filePath_SCADAStationConfiguration;
+            }
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)

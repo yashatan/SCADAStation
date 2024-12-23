@@ -52,10 +52,11 @@ namespace SCADAStationNetFrameWork
             functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
             functionalLab.TagUpdated += FunctionalLab_TagUpdated;
             functionalLab.DeviceUpdated += FunctionalLab_DeviceUpdated;
+            functionalLab.NewClientConnected += FunctionalLab_NewClientConnected;
             //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
             if (generalPage == null)
             {
-                generalPage = new GeneralPage();
+                generalPage = new GeneralPage(pfunctionalLab.listClient);
                 generalPage.setUrl(functionalLab.url);
             }
             if (devicesPage == null)
@@ -76,6 +77,11 @@ namespace SCADAStationNetFrameWork
             }
 
             this.ContentView.Content = generalPage;
+        }
+
+        private void FunctionalLab_NewClientConnected(object sender, EventArgs e)
+        {
+            generalPage.Reresh();
         }
 
         private void FunctionalLab_DeviceUpdated(object sender, EventArgs e)

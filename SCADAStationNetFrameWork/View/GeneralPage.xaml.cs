@@ -20,21 +20,40 @@ namespace SCADAStationNetFrameWork
     /// </summary>
     public partial class GeneralPage : Page
     {
-        List<string> deviceList;
+        List<ClientItem> ClientList;
         public string url;
         public GeneralPage()
         {
             InitializeComponent();
-            deviceList = new List<string>();
-            deviceList.Add("SAMSUNG M32");
-            deviceList.Add("Iphone 13");
-            lsbMobileList.ItemsSource = deviceList;
+            ClientList = new List<ClientItem>();
+            //ClientList.Add("SAMSUNG M32");
+            //ClientList.Add("Iphone 13");
+            lsbMobileList.ItemsSource = ClientList;
             lsbMobileList.Items.Refresh();
             txtUrl.Text = url;
+            txtProjectName.Text = FunctionalLab.currentProjectInformation.Name;
+        }
+
+        public GeneralPage(List<ClientItem> clientItems)
+        {
+            InitializeComponent();
+            ClientList = clientItems;
+            lsbMobileList.ItemsSource = ClientList;
+            lsbMobileList.Items.Refresh();
+            txtUrl.Text = url;
+            txtProjectName.Text = FunctionalLab.currentProjectInformation.Name;
         }
         public void setUrl(string url)
         {
             txtUrl.Text = url;
+        }
+
+        public void Reresh()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                lsbMobileList.Items.Refresh();
+            });
         }
     }
 }

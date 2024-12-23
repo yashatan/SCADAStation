@@ -161,6 +161,7 @@
     <Compile Include="Model\AlarmPoint.cs" />
     <Compile Include="Model\AlarmSetting.cs" />
     <Compile Include="Model\AnimationSense.cs" />
+    <Compile Include="Model\ClientItem.cs" />
     <Compile Include="Model\ControlData.cs" />
     <Compile Include="Model\ProjectInformation.cs" />
     <Compile Include="Model\SCADAPage.cs" />
