@@ -93,7 +93,10 @@ namespace SCADAStationNetFrameWork
                 try
                 {
                     m_Server.Connect(DeviceInfo.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
-                    ConnectionStatus = "Connected";
+                    if (m_Server.Session != null)
+                    {
+                        ConnectionStatus = "Connected";
+                    }
                 }
                 catch (Exception ex)
                 {

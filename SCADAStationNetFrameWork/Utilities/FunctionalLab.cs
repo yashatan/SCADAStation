@@ -43,7 +43,7 @@ namespace SCADAStationNetFrameWork
         public List<TagLoggingSetting> listTagLoggingSettings;
         public List<ControlDevice> listcontrolDevices;
         public List<ClientItem> listClient;
-        SCADAAppConfiguration mSCADAConfiguration;
+        SCADAAppConfiguration mSCADAAppConfiguration;
         Dictionary<int, ControlDevice> DictionaryControlDevices;
         private IDisposable _signalR;
         public string url;
@@ -484,17 +484,18 @@ namespace SCADAStationNetFrameWork
         private void SendSCADAConfigurationToApp()
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
-            mSCADAConfiguration = new SCADAAppConfiguration();
-            mSCADAConfiguration.SCADAPages = mSCADAStationConfiguration.SCADAPages;
-            mSCADAConfiguration.TagInfos = mSCADAStationConfiguration.TagInfos;
-            mSCADAConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
-            mSCADAConfiguration.TagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
+            mSCADAAppConfiguration = new SCADAAppConfiguration();
+            mSCADAAppConfiguration.SCADAPages = mSCADAStationConfiguration.SCADAPages;
+            mSCADAAppConfiguration.TagInfos = mSCADAStationConfiguration.TagInfos;
+            mSCADAAppConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
+            mSCADAAppConfiguration.TagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
+            mSCADAAppConfiguration.MainPageId = mSCADAStationConfiguration.ProjectInformation.MainPageId;
             if (listAlarmPoints.Count > 0)
             {
-                mSCADAConfiguration.CurrentAlarmPoints = listAlarmPoints;
+                mSCADAAppConfiguration.CurrentAlarmPoints = listAlarmPoints;
             }
 
-            hubContext.Clients.All.DownloadSCADAConfig(mSCADAConfiguration);
+            hubContext.Clients.All.DownloadSCADAConfig(mSCADAAppConfiguration);
             foreach (var tag in listTags)
             {
                 SendTagValueToClient(tag.Id, tag.Data);
@@ -581,7 +582,7 @@ namespace SCADAStationNetFrameWork
             }
             remove
             {
-                _DeviceUpdated -= value;
+                _NewClientConnected -= value;
             }
         }
 

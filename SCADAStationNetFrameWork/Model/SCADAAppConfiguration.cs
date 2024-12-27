@@ -41,5 +41,7 @@ namespace SCADAStationNetFrameWork
         public SCADAAppConfiguration() {
         }
 
+        public int MainPageId;
+
     }
 }

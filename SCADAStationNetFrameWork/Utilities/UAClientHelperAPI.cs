@@ -190,7 +190,7 @@ namespace SCADAStationNetFrameWork
             catch (Exception e)
             {
                 //handle Exception here
-                throw e;
+                //throw e;
             }
         }
 

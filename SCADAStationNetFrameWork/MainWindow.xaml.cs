@@ -78,7 +78,40 @@ namespace SCADAStationNetFrameWork
 
             this.ContentView.Content = generalPage;
         }
+        public MainWindow(string filename)
+        {
+            InitializeComponent();
 
+            functionalLab = new FunctionalLab(filename);
+            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
+            functionalLab.TagUpdated += FunctionalLab_TagUpdated;
+            functionalLab.DeviceUpdated += FunctionalLab_DeviceUpdated;
+            functionalLab.NewClientConnected += FunctionalLab_NewClientConnected;
+            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            if (generalPage == null)
+            {
+                generalPage = new GeneralPage(functionalLab.listClient);
+                generalPage.setUrl(functionalLab.url);
+            }
+            if (devicesPage == null)
+            {
+                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+            }
+            if (alarmPage == null)
+            {
+                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+            }
+            if (tagsPage == null)
+            {
+                tagsPage = new TagsPage(functionalLab.listTags);
+            }
+            if (tagLoggingPage == null)
+            {
+                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+            }
+
+            this.ContentView.Content = generalPage;
+        }
         private void FunctionalLab_NewClientConnected(object sender, EventArgs e)
         {
             generalPage.Reresh();
@@ -98,22 +131,6 @@ namespace SCADAStationNetFrameWork
         {
             tagsPage.Refresh();
         }
-
-        public MainWindow(string filename)
-        {
-            InitializeComponent();
-
-            functionalLab = new FunctionalLab(filename);
-            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
-            if (generalPage == null)
-            {
-                generalPage = new GeneralPage();
-                generalPage.setUrl(functionalLab.url);
-            }
-            this.ContentView.Content = generalPage;
-        }
-
 
         private void TestSend_Click(object sender, RoutedEventArgs e)
         {
