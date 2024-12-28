@@ -80,31 +80,22 @@ namespace SCADAStationNetFrameWork
                 SCADAHub.AcknowledgeAlarmPoint += SCADAHub_AcknowledegeAlarmPoint;
                 SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
                 SCADAHub.ClientNameChanged += SCADAHub_ClientNameChanged;
+                SCADAHub.ClientGetCurrentTagsValue += SCADAHub_ClientGetCurrentTagsValue;
             }
 
         }
 
+        private void SCADAHub_ClientGetCurrentTagsValue(string clientId)
+        {
+            foreach (var tag in listTags)
+            {
+                SendTagValueToClient(tag.Id, tag.Data, clientId);
+            }
+        }
 
-
-        //bool testtagvalue;
         public async void testfunc()
         {
-            //if (testtagvalue)
-            //{
-            //    SendTagValueToClient(11, 0);
-            //    testtagvalue = false;
-            //}
-            //else
-            //{
-            //    SendTagValueToClient(11, 1);
-            //    testtagvalue = true;
-            //}
-            //SendTagValueToClient(15, 11);
             await SetupDeviceConnection();
-            //var alarmpoint = new AlarmPoint(listAlarmSettings.FirstOrDefault(), System.DateTime.Now) ;
-            //listAlarmPoints.Add(alarmpoint);
-            //OnAlarmedAdded();
-            //SendAlarmPointToClient(alarmpoint);
         }
         public async void testfunc2()
         {
@@ -181,22 +172,6 @@ namespace SCADAStationNetFrameWork
             }
 
         }
-        //public static List<TagInfo> Deserialize_Tags(string filePath)
-        //{
-
-        //    string jsonString = File.ReadAllText(filePath);
-        //    var listTags = new List<TagInfo>();
-        //    listTags = JsonSerializer.Deserialize<List<TagInfo>>(jsonString);
-        //    return listTags;
-        //}
-        //public static List<ConnectDevice> Deserialize_ConnectDevice(string filePath)
-        //{
-
-        //    string jsonString = File.ReadAllText(filePath);
-        //    var listDevices = new List<ConnectDevice>();
-        //    listDevices = JsonSerializer.Deserialize<List<ConnectDevice>>(jsonString);
-        //    return listDevices;
-        //}
         #endregion
 
         #region PLC
@@ -446,6 +421,11 @@ namespace SCADAStationNetFrameWork
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
             hubContext.Clients.All.UpdateTags(tagID, value);
         }
+        private void SendTagValueToClient(int tagID, long value, string clientID)
+        {
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.Client(clientID).UpdateTags(tagID, value);
+        }
         public void StartServer()
         {
             url = $"http://{GetLocalIPAddress()}:8088/{currentProjectInformation.Name}/signalr";
@@ -496,10 +476,6 @@ namespace SCADAStationNetFrameWork
             }
 
             hubContext.Clients.All.DownloadSCADAConfig(mSCADAAppConfiguration);
-            foreach (var tag in listTags)
-            {
-                SendTagValueToClient(tag.Id, tag.Data);
-            }
         }
         private void SCADAHub_GetTrendPoints(int tagloggingid)
         {
@@ -516,7 +492,8 @@ namespace SCADAStationNetFrameWork
         }
         private void SCADAHub_ClientDisconnected(string clientId)
         {
-            //listClient.Add(new ClientItem(clientId, clientId));
+            var client = listClient.FirstOrDefault(x => x.ConnectionID == clientId);
+            listClient.Remove(client);
         }
 
         private void SCADAHub_ClientNameChanged(string clientId, string newName)

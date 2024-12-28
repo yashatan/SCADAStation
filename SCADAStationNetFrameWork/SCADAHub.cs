@@ -13,6 +13,7 @@ namespace SCADAStationNetFrameWork
     public delegate void WriteTagEventHandler(int tagid, object value);
     public delegate void GetAlarmValueEventHandler(TagInfo taginfo, object value);
     public delegate void GetTrendPointsEventHandler(int trendsettingid);
+    public delegate void GetCurrentTagsValueEventHandler(string clientId);
     public delegate void GetTrendValueByDateTimeEventHandler(int trendsettingid, DateTime begintime, DateTime endtime);
     public delegate void AcknowledgeAlarmPointEventHandler(int alarmpointId);
 
@@ -28,6 +29,7 @@ namespace SCADAStationNetFrameWork
         public static event AcknowledgeAlarmPointEventHandler AcknowledgeAlarmPoint;
         public static event GetTrendPointsEventHandler ClientGetTrendPoints;
         public static event ClientNameChangedEventHandler ClientNameChanged;
+        public static event GetCurrentTagsValueEventHandler ClientGetCurrentTagsValue;
         //
         //public static event ClientGroupEventHandler ClientJoinedToGroup;
         //public static event ClientGroupEventHandler ClientLeftGroup;
@@ -60,6 +62,10 @@ namespace SCADAStationNetFrameWork
             return base.OnDisconnected(stopCalled);
         }
 
+        public void GetCurrentTagsValue()
+        {
+            ClientGetCurrentTagsValue?.Invoke(Context.ConnectionId);
+        }
         public void WriteTag(int tagid, object value)
         {
             ClientWriteTag?.Invoke(tagid, value);
