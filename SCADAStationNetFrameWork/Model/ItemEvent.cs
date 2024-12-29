@@ -20,7 +20,8 @@
         {
             emSetbit,
             emResetBit,
-            emSetValue
+            emSetValue,
+            emOpenScreen
         }
         private string name;
         public int Value { get; set; }
@@ -34,6 +35,6 @@
         public ItemEventType EventType { get => eventType; set => eventType = value; }
         public ItemActiontype ActionType { get; set; }
         public virtual TagInfo Tag { get; set; }
-
+        public int PageID { get; set; }
     }
 }
