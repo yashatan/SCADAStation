@@ -31,15 +31,6 @@ namespace SCADAStationNetFrameWork
         {
             InitializeComponent();
             alarmpointsList = alarmPoints;
-            var testpoint = new AlarmPoint()
-            {
-                Id = 4,
-                Name = "Test",
-                Text = "Test Content",
-                Type = AlarmSetting.AlarmType.Error,
-                TimeStamp = DateTime.Now,
-            };
-            alarmpointsList.Add(testpoint);
             lvAlarm.ItemsSource = alarmpointsList;
             lvAlarm.Items.Refresh();
             this.functionalLab = functionalLab;

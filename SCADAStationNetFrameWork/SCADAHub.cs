@@ -14,7 +14,7 @@ namespace SCADAStationNetFrameWork
     public delegate void GetAlarmValueEventHandler(TagInfo taginfo, object value);
     public delegate void GetTrendPointsEventHandler(int trendsettingid);
     public delegate void GetCurrentTagsValueEventHandler(string clientId);
-    public delegate void GetTrendValueByDateTimeEventHandler(int trendsettingid, DateTime begintime, DateTime endtime);
+    public delegate void GetTagLoggingDataEventHandler(string clientId, int trendsettingid, DateTime begintime, DateTime endtime);
     public delegate void AcknowledgeAlarmPointEventHandler(int alarmpointId);
 
 
@@ -25,11 +25,12 @@ namespace SCADAStationNetFrameWork
         public static event ClientConnectionEventHandler ClientConnected;
         public static event ClientConnectionEventHandler ClientDisconnected;
         public static event WriteTagEventHandler ClientWriteTag;
-        public static event GetAlarmValueEventHandler  ClientGetAlarmValue;
+        public static event GetAlarmValueEventHandler ClientGetAlarmValue;
         public static event AcknowledgeAlarmPointEventHandler AcknowledgeAlarmPoint;
         public static event GetTrendPointsEventHandler ClientGetTrendPoints;
         public static event ClientNameChangedEventHandler ClientNameChanged;
         public static event GetCurrentTagsValueEventHandler ClientGetCurrentTagsValue;
+        public static event GetTagLoggingDataEventHandler ClientGetTagLoggingData;
         //
         //public static event ClientGroupEventHandler ClientJoinedToGroup;
         //public static event ClientGroupEventHandler ClientLeftGroup;
@@ -85,6 +86,10 @@ namespace SCADAStationNetFrameWork
             _users[Context.ConnectionId] = userName;
 
             ClientNameChanged?.Invoke(Context.ConnectionId, userName);
+        }
+        public void GetTagLoggingData(int trendsettingid, DateTime begintime, DateTime endtime)
+        {
+            ClientGetTagLoggingData?.Invoke(Context.ConnectionId, trendsettingid, begintime, endtime);
         }
         #region Client Methods
 

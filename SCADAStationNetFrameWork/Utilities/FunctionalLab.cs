@@ -51,7 +51,7 @@ namespace SCADAStationNetFrameWork
         private SCADAStationConfiguration mSCADAStationConfiguration;
         public static ProjectInformation currentProjectInformation;
         public List<TrendPoint> listTrendPoints;
-        public bool LoadFileStatus {  get; set; }
+        public bool LoadFileStatus { get; set; }
         public FunctionalLab()
         {
             filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
@@ -81,8 +81,17 @@ namespace SCADAStationNetFrameWork
                 SCADAHub.ClientGetTrendPoints += SCADAHub_GetTrendPoints;
                 SCADAHub.ClientNameChanged += SCADAHub_ClientNameChanged;
                 SCADAHub.ClientGetCurrentTagsValue += SCADAHub_ClientGetCurrentTagsValue;
+                SCADAHub.ClientGetTagLoggingData += SCADAHub_ClientGetTagLoggingData;
             }
 
+        }
+
+        private void SCADAHub_ClientGetTagLoggingData(string clientId, int trendsettingid, System.DateTime begintime, System.DateTime endtime)
+        {
+            List<TrendPoint> trendPointsById = new List<TrendPoint>(SCADAStationDbContext.Instance.TrendPoints.Where(x => x.TagLoggingId == trendsettingid).ToList());
+            List<TrendPoint> tagLoggingDatas = trendPointsById.Where(t => t.TimeStamp >= begintime && t.TimeStamp <= endtime).ToList();
+            var hubContext = GlobalHost.ConnectionManager.GetHubContext<SCADAHub>();
+            hubContext.Clients.Client(clientId).WriteQueryTagLoggingDatas(tagLoggingDatas);
         }
 
         private void SCADAHub_ClientGetCurrentTagsValue(string clientId)
@@ -115,7 +124,7 @@ namespace SCADAStationNetFrameWork
             Trace.WriteLine($"Starting reading file");
             mSCADAStationConfiguration = new SCADAStationConfiguration();
             mSCADAStationConfiguration = Deserialize_SCADAStationConfiguration(fileName);
-            if ( mSCADAStationConfiguration == null)
+            if (mSCADAStationConfiguration == null)
             {
                 return false;
             }
@@ -378,7 +387,7 @@ namespace SCADAStationNetFrameWork
                     if (TagLogging.Tag.Type == TagInfo.TagType.eReal)
                     {
                         var temp = Convert.ToSingle(TagLogging.Tag.Value);
-                        value = (double) temp;
+                        value = (double)temp;
                     }
                     else if (TagLogging.Tag.Type == TagInfo.TagType.eDouble)
                     {
@@ -388,7 +397,7 @@ namespace SCADAStationNetFrameWork
                     }
                     else
                     {
-                        value = (double) Convert.ToInt32(TagLogging.Tag.Value);
+                        value = (double)Convert.ToInt32(TagLogging.Tag.Value);
                     }
                     var trendPoint = new TrendPoint(TagLogging.Id, value, System.DateTime.Now);
                     SCADAStationDbContext.Instance.TrendPoints.Add(trendPoint);
@@ -498,7 +507,7 @@ namespace SCADAStationNetFrameWork
 
         private void SCADAHub_ClientNameChanged(string clientId, string newName)
         {
-            var client = listClient.FirstOrDefault(p=>p.ConnectionID == clientId);
+            var client = listClient.FirstOrDefault(p => p.ConnectionID == clientId);
             if (client != null)
             {
                 client.Name = newName;
