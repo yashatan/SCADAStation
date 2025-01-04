@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,11 +22,11 @@ namespace SCADAStationNetFrameWork
     public partial class StartPage : Window
     {
         string filePath_SCADAStationConfiguration;
-        FunctionalLab FunctionalLab;
+        const string LastConfigFilePathPath = "Data\\LastConfigFilePath.txt";
         public StartPage()
         {
             InitializeComponent();
-            filePath_SCADAStationConfiguration = "C:\\Users\\Admin\\Work\\DemoSCADA\\DemoSCADAStation.json";
+            LoadSCADAServerPATH();
             txtFileLocation.Text = filePath_SCADAStationConfiguration;
 
         }
@@ -44,17 +45,27 @@ namespace SCADAStationNetFrameWork
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             filePath_SCADAStationConfiguration = txtFileLocation.Text;
-            FunctionalLab = new FunctionalLab(filePath_SCADAStationConfiguration);
-            if (FunctionalLab.LoadFileStatus)
+            SCADAStationController.Instance.SetSCADAStationConfigurationPath(filePath_SCADAStationConfiguration);
+            if (SCADAStationController.Instance.LoadFileStatus)
             {
-                MainWindow mainWindow = new MainWindow(FunctionalLab);
+                SaveSCADAServerPATH();
+                MainWindow mainWindow = new MainWindow();
                 mainWindow.WindowState = WindowState.Normal;
                 mainWindow.Show();
                 this.Close();
             }
 
         }
+        void LoadSCADAServerPATH()
+        { 
+            filePath_SCADAStationConfiguration = File.ReadAllText(LastConfigFilePathPath);
+        }
 
+        void SaveSCADAServerPATH()
+        {
+            File.WriteAllText(LastConfigFilePathPath, filePath_SCADAStationConfiguration);
+
+        }
         private void CloseIcon_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             this.Close();

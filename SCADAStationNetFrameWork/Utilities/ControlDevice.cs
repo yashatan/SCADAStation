@@ -29,11 +29,11 @@ namespace SCADAStationNetFrameWork
 
         public ControlDevice()
         {
-            ConnectionStatus = "Fail";
+            ConnectionStatus = "Disconnected";
         }
         public ControlDevice(ConnectDevice device)
         {
-            ConnectionStatus = "Fail";
+            ConnectionStatus = "Disconnected";
             DeviceInfo = device;
             currentType = (ConnectDevice.emConnectionType)device.ConnectionType;
             if (currentType == ConnectDevice.emConnectionType.emS7)
@@ -59,40 +59,44 @@ namespace SCADAStationNetFrameWork
 
         public async Task Connect()
         {
-
             if (currentType == ConnectDevice.emConnectionType.emS7)
             {
                 try
                 {
-                    await plcdevice.OpenAsync();
-
-                    Trace.WriteLine($"Connect to the PLC {DeviceInfo.Name} {DeviceInfo.Destination} succesfully");
+                    if (!plcdevice.IsConnected)
+                    {
+                        await plcdevice.OpenAsync();
+                    }
                     ConnectionStatus = "Connected";
                 }
                 catch
                 {
-                    ConnectionStatus = "Fail";
-                    //throw;
+                    ConnectionStatus = "Disconnected";
                 }
             }
             else if (currentType == ConnectDevice.emConnectionType.emTCP)
             {
                 try
                 {
-                    modbusClient.Connect();
+                    if (!modbusClient.Connected)
+                    {
+                        modbusClient.Connect();
+                    }
                     ConnectionStatus = "Connected";
                 }
                 catch (Exception ex)
                 {
-                    ConnectionStatus = "Fail";
-                    //throw;
+                    ConnectionStatus = "Disconnected";
                 }
             }
             else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
             {
                 try
                 {
-                    m_Server.Connect(DeviceInfo.Destination+"i", "none", MessageSecurityMode.None, false, "", "");
+                    if (!m_Server.Session.Connected)
+                    {
+                        m_Server.Connect(DeviceInfo.Destination + "i", "none", MessageSecurityMode.None, false, "", "");
+                    }
                     if (m_Server.Session != null)
                     {
                         ConnectionStatus = "Connected";
@@ -100,12 +104,60 @@ namespace SCADAStationNetFrameWork
                 }
                 catch (Exception ex)
                 {
-                    ConnectionStatus = "Fail";
-                    //throw;
+                    ConnectionStatus = "Disconnected";
                 }
             }
         }
 
+        public async Task Disconnect()
+        {
+            if (currentType == ConnectDevice.emConnectionType.emS7)
+            {
+                try
+                {
+                    if (plcdevice.IsConnected)
+                    {
+                        plcdevice.Close();
+                    }
+                    ConnectionStatus = "Disconnected";
+                }
+                catch
+                {
+                    ConnectionStatus = "Error";
+                }
+            }
+            else if (currentType == ConnectDevice.emConnectionType.emTCP)
+            {
+                try
+                {
+                    if (modbusClient.Connected)
+                    {
+                        modbusClient.Disconnect();
+                    }
+                    ConnectionStatus = "Disconnected";
+                }
+                catch (Exception ex)
+                {
+                    ConnectionStatus = "Error";
+                }
+            }
+            else if (currentType == ConnectDevice.emConnectionType.emOPCUA)
+            {
+                try
+                {
+                    if (m_Server.Session.Connected)
+                    {
+                        m_Server.Disconnect();
+                    }
+                    ConnectionStatus = "Disconnected";
+                }
+                catch (Exception ex)
+                {
+                    ConnectionStatus = "Error";
+                }
+            }
+
+        }
         public void ReadTag(TagInfo tag)
         {
             if (currentType == ConnectDevice.emConnectionType.emS7)
@@ -470,7 +522,7 @@ namespace SCADAStationNetFrameWork
         }
         private void Notification_KeepAlive(Session session, KeepAliveEventArgs e)
         {
-//do nothing
+            //do nothing
         }
 
         private void m_Server_CertificateEvent(CertificateValidator sender, CertificateValidationEventArgs e)

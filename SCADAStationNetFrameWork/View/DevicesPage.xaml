@@ -38,6 +38,18 @@
                             <GridViewColumn Header="Connection Status"
                                             Width="200"
                                             DisplayMemberBinding="{Binding ConnectionStatus}" />
+                            <GridViewColumn Header="Connect"
+                                            Width="250">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="100"
+                                                x:Name="btnConnect"
+                                                Click="btnConnect_Click">
+                                            <TextBlock Text="Connect"></TextBlock>
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

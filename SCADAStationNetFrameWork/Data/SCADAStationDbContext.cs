@@ -19,7 +19,7 @@ namespace SCADAStationNetFrameWork
                     : base(connection, true)
         {
         }
-        private SCADAStationDbContext() : base(new SQLiteConnection($"Data Source={FunctionalLab.currentProjectInformation.GetDBPath()};New=False;Compress=True;UTF8Encoding=True"), true)
+        private SCADAStationDbContext() : base(new SQLiteConnection($"Data Source={SCADAStationController.currentProjectInformation.GetDBPath()};New=False;Compress=True;UTF8Encoding=True"), true)
         {
 
         }

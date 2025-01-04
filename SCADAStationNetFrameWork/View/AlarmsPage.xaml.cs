@@ -22,24 +22,22 @@ namespace SCADAStationNetFrameWork
     public partial class AlarmPage : Page
     {
         List<AlarmPoint> alarmpointsList;
-        FunctionalLab functionalLab;
         public AlarmPage()
         {
             InitializeComponent();
         }
-        public AlarmPage(List<AlarmPoint> alarmPoints, FunctionalLab functionalLab)
+        public AlarmPage(List<AlarmPoint> alarmPoints)
         {
             InitializeComponent();
             alarmpointsList = alarmPoints;
             lvAlarm.ItemsSource = alarmpointsList;
             lvAlarm.Items.Refresh();
-            this.functionalLab = functionalLab;
         }
         private void btnAckAlarm_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var chosenAlarmPoint = button.DataContext as AlarmPoint;
-            functionalLab.ACKAlarmPoint(chosenAlarmPoint.Id);
+            SCADAStationController.Instance.ACKAlarmPoint(chosenAlarmPoint.Id);
             lvAlarm.Items.Refresh();
         }
         private void ListViewItems_PreviewMouseWheel(object sender, MouseWheelEventArgs e)

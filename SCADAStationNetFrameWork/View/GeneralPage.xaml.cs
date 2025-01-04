@@ -31,7 +31,7 @@ namespace SCADAStationNetFrameWork
             lsbMobileList.ItemsSource = ClientList;
             lsbMobileList.Items.Refresh();
             txtUrl.Text = url;
-            txtProjectName.Text = FunctionalLab.currentProjectInformation.Name;
+            txtProjectName.Text = SCADAStationController.currentProjectInformation.Name;
         }
 
         public GeneralPage(List<ClientItem> clientItems)
@@ -41,7 +41,7 @@ namespace SCADAStationNetFrameWork
             lsbMobileList.ItemsSource = ClientList;
             lsbMobileList.Items.Refresh();
             txtUrl.Text = url;
-            txtProjectName.Text = FunctionalLab.currentProjectInformation.Name;
+            txtProjectName.Text = SCADAStationController.currentProjectInformation.Name;
         }
         public void setUrl(string url)
         {

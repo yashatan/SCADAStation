@@ -29,51 +29,45 @@ namespace SCADAStationNetFrameWork
     /// </summary>
     public partial class MainWindow : Window
     {
-        FunctionalLab functionalLab;
         GeneralPage generalPage;
         DevicesPage devicesPage;
         AlarmPage alarmPage;
         TagsPage tagsPage;
         TagLoggingPage tagLoggingPage;
+        //public MainWindow()
+        //{
+        //    InitializeComponent();
+        //}
+
         public MainWindow()
         {
             InitializeComponent();
 
-            functionalLab = new FunctionalLab();
-            //functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
-        }
-
-        public MainWindow(FunctionalLab pfunctionalLab)
-        {
-            InitializeComponent();
-
-            functionalLab = pfunctionalLab;
-            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            functionalLab.TagUpdated += FunctionalLab_TagUpdated;
-            functionalLab.DeviceUpdated += FunctionalLab_DeviceUpdated;
-            functionalLab.NewClientConnected += FunctionalLab_NewClientConnected;
-            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            SCADAStationController.Instance.AlarmAdded += FunctionalLab_AlarmAdded;
+            SCADAStationController.Instance.TagUpdated += FunctionalLab_TagUpdated;
+            SCADAStationController.Instance.DeviceUpdated += FunctionalLab_DeviceUpdated;
+            SCADAStationController.Instance.NewClientConnected += FunctionalLab_NewClientConnected;
+            //lvAlarm.ItemsSource = SCADAStationController.Instance.listAlarmPoints;
             if (generalPage == null)
             {
-                generalPage = new GeneralPage(pfunctionalLab.listClient);
-                generalPage.setUrl(functionalLab.url);
+                generalPage = new GeneralPage(SCADAStationController.Instance.listClient);
+                generalPage.setUrl(SCADAStationController.Instance.url);
             }
             if (devicesPage == null)
             {
-                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+                devicesPage = new DevicesPage(SCADAStationController.Instance.listcontrolDevices);
             }
             if (alarmPage == null)
             {
-                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+                alarmPage = new AlarmPage(SCADAStationController.Instance.listAlarmPoints);
             }
             if (tagsPage == null)
             {
-                tagsPage = new TagsPage(functionalLab.listTags);
+                tagsPage = new TagsPage(SCADAStationController.Instance.listTags);
             }
             if (tagLoggingPage == null)
             {
-                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+                tagLoggingPage = new TagLoggingPage(SCADAStationController.Instance.listTagLoggingSettings);
             }
 
             this.ContentView.Content = generalPage;
@@ -82,32 +76,31 @@ namespace SCADAStationNetFrameWork
         {
             InitializeComponent();
 
-            functionalLab = new FunctionalLab(filename);
-            functionalLab.AlarmAdded += FunctionalLab_AlarmAdded;
-            functionalLab.TagUpdated += FunctionalLab_TagUpdated;
-            functionalLab.DeviceUpdated += FunctionalLab_DeviceUpdated;
-            functionalLab.NewClientConnected += FunctionalLab_NewClientConnected;
-            //lvAlarm.ItemsSource = functionalLab.listAlarmPoints;
+            SCADAStationController.Instance.SetSCADAStationConfigurationPath(filename);
+            SCADAStationController.Instance.AlarmAdded += FunctionalLab_AlarmAdded;
+            SCADAStationController.Instance.TagUpdated += FunctionalLab_TagUpdated;
+            SCADAStationController.Instance.DeviceUpdated += FunctionalLab_DeviceUpdated;
+            SCADAStationController.Instance.NewClientConnected += FunctionalLab_NewClientConnected;
             if (generalPage == null)
             {
-                generalPage = new GeneralPage(functionalLab.listClient);
-                generalPage.setUrl(functionalLab.url);
+                generalPage = new GeneralPage(SCADAStationController.Instance.listClient);
+                generalPage.setUrl(SCADAStationController.Instance.url);
             }
             if (devicesPage == null)
             {
-                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+                devicesPage = new DevicesPage(SCADAStationController.Instance.listcontrolDevices);
             }
             if (alarmPage == null)
             {
-                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+                alarmPage = new AlarmPage(SCADAStationController.Instance.listAlarmPoints);
             }
             if (tagsPage == null)
             {
-                tagsPage = new TagsPage(functionalLab.listTags);
+                tagsPage = new TagsPage(SCADAStationController.Instance.listTags);
             }
             if (tagLoggingPage == null)
             {
-                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+                tagLoggingPage = new TagLoggingPage(SCADAStationController.Instance.listTagLoggingSettings);
             }
 
             this.ContentView.Content = generalPage;
@@ -134,12 +127,12 @@ namespace SCADAStationNetFrameWork
 
         private void TestSend_Click(object sender, RoutedEventArgs e)
         {
-            functionalLab.testfunc();
+            SCADAStationController.Instance.testfunc();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            functionalLab.testfunc2();
+            SCADAStationController.Instance.testfunc2();
         }
 
 
@@ -147,7 +140,7 @@ namespace SCADAStationNetFrameWork
         {
             var button = sender as Button;
             var chosenAlarmPoint = button.DataContext as AlarmPoint;
-            //functionalLab.ACKAlarmPoint(chosenAlarmPoint.Id);
+            //SCADAStationController.Instance.ACKAlarmPoint(chosenAlarmPoint.Id);
         }
 
         #region MenuItem
@@ -161,7 +154,7 @@ namespace SCADAStationNetFrameWork
 
             if (tagLoggingPage == null)
             {
-                tagLoggingPage = new TagLoggingPage(functionalLab.listTagLoggingSettings);
+                tagLoggingPage = new TagLoggingPage(SCADAStationController.Instance.listTagLoggingSettings);
             }
             this.ContentView.Content = tagLoggingPage;
         }
@@ -180,7 +173,7 @@ namespace SCADAStationNetFrameWork
         {
             if (devicesPage == null)
             {
-                devicesPage = new DevicesPage(functionalLab.listcontrolDevices);
+                devicesPage = new DevicesPage(SCADAStationController.Instance.listcontrolDevices);
             }
 
             this.ContentView.Content = devicesPage;
@@ -190,7 +183,7 @@ namespace SCADAStationNetFrameWork
         {
             if (tagsPage == null)
             {
-                tagsPage = new TagsPage(functionalLab.listTags);
+                tagsPage = new TagsPage(SCADAStationController.Instance.listTags);
             }
             this.ContentView.Content = tagsPage;
         }
@@ -199,7 +192,7 @@ namespace SCADAStationNetFrameWork
         {
             if (alarmPage == null)
             {
-                alarmPage = new AlarmPage(functionalLab.listAlarmPoints, functionalLab);
+                alarmPage = new AlarmPage(SCADAStationController.Instance.listAlarmPoints);
             }
             this.ContentView.Content = alarmPage;
         }
