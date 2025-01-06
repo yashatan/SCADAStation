@@ -12,6 +12,7 @@
       Title="DevicesPage">
     <Page.Resources>
         <local:EnumToTypeConnectionConverter x:Key="EnumToTypeConnectionConverter" />
+        <local:ConnectionStatusToConnectButtonText x:Key="ConnectionStatusToConnectButtonText" />
     </Page.Resources>
     <Grid>
         <materialDesign:Card Margin="5 5 5 0"
@@ -42,10 +43,10 @@
                                             Width="250">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="100"
+                                        <Button Width="120"
                                                 x:Name="btnConnect"
                                                 Click="btnConnect_Click">
-                                            <TextBlock Text="Connect"></TextBlock>
+                                            <TextBlock Text="{Binding ConnectionStatus, Converter={StaticResource ConnectionStatusToConnectButtonText}}"></TextBlock>
                                         </Button>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

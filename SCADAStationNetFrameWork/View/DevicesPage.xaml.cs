@@ -56,10 +56,10 @@ namespace SCADAStationNetFrameWork
             var chosendevice = button.DataContext as ControlDevice;
             if ((button.Content as TextBlock).Text == "Connect")
             {
+
                 await SCADAStationController.Instance.DeviceConnect(chosendevice);
                 if (chosendevice.ConnectionStatus == "Connected")
-                {
-                    (button.Content as TextBlock).Text = "Disconnect";
+                {  
                 }
                 else
                 {
@@ -71,14 +71,13 @@ namespace SCADAStationNetFrameWork
                 await SCADAStationController.Instance.DeviceDisconnect(chosendevice);
                 if (chosendevice.ConnectionStatus == "Disconnected")
                 {
-                    (button.Content as TextBlock).Text = "Connect";
                 }
                 else
                 {
                     MessageBox.Show("Can not disconnect device, please check your connection and try again");
-
                 }
             }
+                                    
             button.IsEnabled = true;
         }
     }
@@ -108,6 +107,27 @@ namespace SCADAStationNetFrameWork
         {
 
             return ConnectDevice.emConnectionType.emS7;
+        }
+    }
+
+    public class ConnectionStatusToConnectButtonText : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string result = "Connect";
+            if ((string) value == "Connected")
+            {
+                result = "Disconnect";
+            }else if((string) value == "Disconnected")
+            {
+                result = "Connect";
+            }
+            return result;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            return null;
         }
     }
 }

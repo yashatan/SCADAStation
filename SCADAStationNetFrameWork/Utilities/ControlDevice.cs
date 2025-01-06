@@ -10,6 +10,8 @@ using Opc.Ua;
 using Opc.Ua.Client;
 using System.Windows.Markup;
 using System.Data;
+using Newtonsoft.Json.Linq;
+using System.Windows;
 
 namespace SCADAStationNetFrameWork
 {
@@ -17,6 +19,7 @@ namespace SCADAStationNetFrameWork
     {
         public ConnectDevice DeviceInfo { get; set; }
         public string ConnectionStatus { get; set; }
+        public bool OPCUASubcribed { get; set; }
         Plc plcdevice;
         ModbusClient modbusClient;
         ConnectDevice.emConnectionType currentType;
@@ -51,7 +54,7 @@ namespace SCADAStationNetFrameWork
                 m_Server = new UAClientHelperAPI();
                 m_Server.CertificateValidationNotification += new CertificateValidationEventHandler(m_Server_CertificateEvent);
                 m_Server.KeepAliveNotification += new KeepAliveEventHandler(Notification_KeepAlive);
-
+                OPCUASubcribed = false;
                 //Set namespace
                 m_NameSpaceIndex = 3;
             }
@@ -93,13 +96,23 @@ namespace SCADAStationNetFrameWork
             {
                 try
                 {
-                    if (!m_Server.Session.Connected)
+                    if (m_Server.Session == null)
                     {
-                        m_Server.Connect(DeviceInfo.Destination + "i", "none", MessageSecurityMode.None, false, "", "");
+                        m_Server.Connect(DeviceInfo.Destination, "none", MessageSecurityMode.None, false, "", "");
+                    }
+                    else
+                    {
+                        if (!m_Server.Session.Connected)
+                        {
+                            m_Server.Connect(DeviceInfo.Destination, "none", MessageSecurityMode.None, false, "", "");
+                        }
                     }
                     if (m_Server.Session != null)
                     {
-                        ConnectionStatus = "Connected";
+                        if (m_Server.Session.Connected)
+                        {
+                            ConnectionStatus = "Connected";
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -145,11 +158,14 @@ namespace SCADAStationNetFrameWork
             {
                 try
                 {
-                    if (m_Server.Session.Connected)
+                    if (m_Server.Session != null)
                     {
                         m_Server.Disconnect();
                     }
-                    ConnectionStatus = "Disconnected";
+                    if (!m_Server.Session.Connected)
+                    {
+                        ConnectionStatus = "Disconnected";
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -163,12 +179,24 @@ namespace SCADAStationNetFrameWork
             if (currentType == ConnectDevice.emConnectionType.emS7)
             {
                 var ob1 = plcdevice.Read(tag.MemoryAddress);
-                long temp = Convert.ToInt64(ob1);
-                if (temp != tag.Data)
+
+                if (ob1 is float)
                 {
-                    tag.Data = temp;
-                    //SendTagValueToClient(tagInfo.Id, tagInfo.Data);
+                    float temp = Convert.ToSingle(ob1);
+                    byte[] floatBytes = BitConverter.GetBytes(temp);
+                    tag.Data = BitConverter.ToInt64(new byte[] { floatBytes[0], floatBytes[1], floatBytes[2], floatBytes[3], 0, 0, 0, 0 }, 0);
                 }
+                else if (ob1 is double)
+                {
+                    double temp = Convert.ToDouble(ob1);
+                    byte[] doubleBytes = BitConverter.GetBytes(temp);
+                    tag.Data = BitConverter.ToInt64(doubleBytes, 0);
+                }
+                else
+                {
+                    tag.Data = Convert.ToInt64(ob1);
+                }
+
             }
             else if (currentType == ConnectDevice.emConnectionType.emTCP)
             {
@@ -276,8 +304,16 @@ namespace SCADAStationNetFrameWork
                 {
                     plcdevice.Write(tag.MemoryAddress, value);
                 }
-
-
+                else if (tag.Type == TagInfo.TagType.eReal)
+                {
+                    var valuetowrite = Convert.ToSingle(value);
+                    plcdevice.Write(tag.MemoryAddress, valuetowrite);
+                }
+                else if (tag.Type == TagInfo.TagType.eDouble)
+                {
+                    var valuetowrite = Convert.ToDouble(value);
+                    plcdevice.Write(tag.MemoryAddress, valuetowrite);
+                }
             }
             else if (currentType == ConnectDevice.emConnectionType.emTCP)
             {
@@ -419,6 +455,10 @@ namespace SCADAStationNetFrameWork
         #region OPCUA
         public void SubscribeTags(List<TagInfo> taglist)
         {
+            if(OPCUASubcribed == true)
+            {
+                return;
+            }
             OPCTagList = new List<TagInfo>();
             if (currentType == ConnectDevice.emConnectionType.emOPCUA)
             {
@@ -432,6 +472,7 @@ namespace SCADAStationNetFrameWork
                         m_Server.AddMonitoredItem(m_Subscription, new NodeId(tag.NodeId, m_NameSpaceIndex).ToString(), tag.MemoryAddress, 100);
                     }
                 }
+                OPCUASubcribed = true;
             }
         }
 
