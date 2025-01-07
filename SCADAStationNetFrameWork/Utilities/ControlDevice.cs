@@ -302,7 +302,8 @@ namespace SCADAStationNetFrameWork
                 }
                 else if (tag.Type == TagInfo.TagType.eBool)
                 {
-                    plcdevice.Write(tag.MemoryAddress, value);
+                    var valuetowrite = Convert.ToBoolean(value);
+                    plcdevice.Write(tag.MemoryAddress, valuetowrite);
                 }
                 else if (tag.Type == TagInfo.TagType.eReal)
                 {

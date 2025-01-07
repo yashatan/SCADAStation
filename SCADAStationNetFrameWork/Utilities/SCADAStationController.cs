@@ -51,6 +51,7 @@ namespace SCADAStationNetFrameWork
         private SCADAStationConfiguration mSCADAStationConfiguration;
         public static ProjectInformation currentProjectInformation;
         public List<TrendPoint> listTrendPoints;
+        private System.Timers.Timer globalTimer;
         public bool LoadFileStatus { get; set; }
         private static SCADAStationController instance;
         public static SCADAStationController Instance
@@ -242,6 +243,10 @@ namespace SCADAStationNetFrameWork
                     controlDevice.SubscribeTags(listTags);
                 }
             }
+            if (DictionaryControlDevices.Count == 1)
+            {
+                SetUpTimer();
+            }
         }
 
         public async Task DeviceDisconnect(ControlDevice controlDevice)
@@ -252,14 +257,18 @@ namespace SCADAStationNetFrameWork
                 DictionaryControlDevices.Remove(controlDevice.DeviceInfo.Id);
                 OnDeviceUpdated();
             }
+            if (DictionaryControlDevices.Count == 0)
+            {
+                globalTimer.Stop();
+            }
         }
 
         private void SetUpTimer()
         {
-            var timer = new System.Timers.Timer();
-            timer.Interval = 500;
-            timer.Elapsed += Timer_Tick;
-            timer.Start();
+            var globalTimer = new System.Timers.Timer();
+            globalTimer.Interval = 500;
+            globalTimer.Elapsed += Timer_Tick;
+            globalTimer.Start();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -441,7 +450,6 @@ namespace SCADAStationNetFrameWork
                     SCADAStationDbContext.Instance.SaveChanges();
                     SendTrendPointToClient(trendPoint);
                     TagLogging.currentDuration = 0;
-                    OnAlarmedAdded();
                 }
             }
         }
@@ -515,6 +523,7 @@ namespace SCADAStationNetFrameWork
             mSCADAAppConfiguration.TrendViewSettings = mSCADAStationConfiguration.TrendViewSettings;
             mSCADAAppConfiguration.TagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
             mSCADAAppConfiguration.MainPageId = mSCADAStationConfiguration.ProjectInformation.MainPageId;
+            mSCADAAppConfiguration.TablePages = mSCADAStationConfiguration.TablePages;
             if (listAlarmPoints.Count > 0)
             {
                 mSCADAAppConfiguration.CurrentAlarmPoints = listAlarmPoints;

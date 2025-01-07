@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCADACreator
+namespace SCADAStationNetFrameWork
 {
     public class BaseSCADAPage
     {
