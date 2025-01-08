@@ -87,7 +87,7 @@ namespace SCADAStationNetFrameWork
                     }
                     ConnectionStatus = "Connected";
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ConnectionStatus = "Disconnected";
                 }
@@ -115,7 +115,7 @@ namespace SCADAStationNetFrameWork
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ConnectionStatus = "Disconnected";
                 }
@@ -149,7 +149,7 @@ namespace SCADAStationNetFrameWork
                     }
                     ConnectionStatus = "Disconnected";
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ConnectionStatus = "Error";
                 }
@@ -167,7 +167,7 @@ namespace SCADAStationNetFrameWork
                         ConnectionStatus = "Disconnected";
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ConnectionStatus = "Error";
                 }

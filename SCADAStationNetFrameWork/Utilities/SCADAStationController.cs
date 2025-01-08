@@ -117,22 +117,7 @@ namespace SCADAStationNetFrameWork
             }
         }
 
-        public async void testfunc()
-        {
-            await SetupDeviceConnection();
-        }
-        public async void testfunc2()
-        {
-            //TagInfo taginfo = listTags.Where(p => p.Name == "testopcwrite").FirstOrDefault();
-            //if (listControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
-            //{
-            //    var device = listControlDevices[taginfo.ConnectDevice.Id];
-            //    if (device != null)
-            //    {
-            //        device.WriteTag(taginfo, Convert);
-            //    }
-            //}
-        }
+
         #region SCADA
         public bool LoadConfigFile(string fileName)
         {
@@ -188,7 +173,7 @@ namespace SCADAStationNetFrameWork
                 stationConfiguration = JsonSerializer.Deserialize<SCADAStationConfiguration>(jsonString);
                 return stationConfiguration;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 MessageBox.Show("Configuration file is invalid. Plesae check again");
                 return null;
@@ -265,7 +250,7 @@ namespace SCADAStationNetFrameWork
 
         private void SetUpTimer()
         {
-            var globalTimer = new System.Timers.Timer();
+            globalTimer = new System.Timers.Timer();
             globalTimer.Interval = 500;
             globalTimer.Elapsed += Timer_Tick;
             globalTimer.Start();
@@ -548,6 +533,7 @@ namespace SCADAStationNetFrameWork
         {
             var client = listClient.FirstOrDefault(x => x.ConnectionID == clientId);
             listClient.Remove(client);
+            OnNewClientConnected();
         }
 
         private void SCADAHub_ClientNameChanged(string clientId, string newName)
@@ -623,6 +609,24 @@ namespace SCADAStationNetFrameWork
             {
                 _NewClientConnected(this, new EventArgs());
             }
+        }
+        #endregion
+        #region TestZone
+        public async void testfunc()
+        {
+            await SetupDeviceConnection();
+        }
+        public void testfunc2()
+        {
+            //TagInfo taginfo = listTags.Where(p => p.Name == "testopcwrite").FirstOrDefault();
+            //if (listControlDevices.ContainsKey(taginfo.ConnectDevice.Id))
+            //{
+            //    var device = listControlDevices[taginfo.ConnectDevice.Id];
+            //    if (device != null)
+            //    {
+            //        device.WriteTag(taginfo, Convert);
+            //    }
+            //}
         }
         #endregion
     }

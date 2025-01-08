@@ -25,7 +25,6 @@ namespace SCADAStationNetFrameWork
         public static event ClientConnectionEventHandler ClientConnected;
         public static event ClientConnectionEventHandler ClientDisconnected;
         public static event WriteTagEventHandler ClientWriteTag;
-        public static event GetAlarmValueEventHandler ClientGetAlarmValue;
         public static event AcknowledgeAlarmPointEventHandler AcknowledgeAlarmPoint;
         public static event GetTrendPointsEventHandler ClientGetTrendPoints;
         public static event ClientNameChangedEventHandler ClientNameChanged;

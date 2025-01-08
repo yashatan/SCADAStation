@@ -187,7 +187,7 @@ namespace SCADAStationNetFrameWork
 
                 mSession.KeepAlive += new KeepAliveEventHandler(Notification_KeepAlive);                
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //handle Exception here
                 //throw e;
@@ -444,7 +444,7 @@ namespace SCADAStationNetFrameWork
                 subscription.Create();
                 return subscription;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //handle Exception here
                 //throw e;

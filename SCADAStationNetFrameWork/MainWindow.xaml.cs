@@ -34,10 +34,6 @@ namespace SCADAStationNetFrameWork
         AlarmPage alarmPage;
         TagsPage tagsPage;
         TagLoggingPage tagLoggingPage;
-        //public MainWindow()
-        //{
-        //    InitializeComponent();
-        //}
 
         public MainWindow()
         {
@@ -125,15 +121,7 @@ namespace SCADAStationNetFrameWork
             tagsPage.Refresh();
         }
 
-        private void TestSend_Click(object sender, RoutedEventArgs e)
-        {
-            SCADAStationController.Instance.testfunc();
-        }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            SCADAStationController.Instance.testfunc2();
-        }
 
 
         private void btnAckAlarm_Click(object sender, RoutedEventArgs e)
@@ -144,11 +132,6 @@ namespace SCADAStationNetFrameWork
         }
 
         #region MenuItem
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void MenuItemTagLogging_Click(object sender, RoutedEventArgs e)
         {
 
@@ -195,6 +178,36 @@ namespace SCADAStationNetFrameWork
                 alarmPage = new AlarmPage(SCADAStationController.Instance.listAlarmPoints);
             }
             this.ContentView.Content = alarmPage;
+        }
+
+        #endregion
+        #region TestZone
+        private void TestSend_Click(object sender, RoutedEventArgs e)
+        {
+            SCADAStationController.Instance.testfunc();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            SCADAStationController.Instance.testfunc2();
+        }
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (e.Key == Key.F12 && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if(TestMenuItem1.Visibility == Visibility.Collapsed)
+                {
+                    TestMenuItem1.Visibility = Visibility.Visible;
+                    TestMenuItem2.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    TestMenuItem1.Visibility = Visibility.Collapsed;
+                    TestMenuItem2.Visibility = Visibility.Collapsed;
+                }
+;
+            }
         }
         #endregion
 

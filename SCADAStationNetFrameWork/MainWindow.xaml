@@ -31,10 +31,12 @@
                 <MenuItem Header="_Tag logging"
                           Click="MenuItemTagLogging_Click"></MenuItem>
                 <MenuItem Header="_Test1"
-                          Visibility="Visible"
+                          Visibility="Collapsed"
+                          x:Name="TestMenuItem1"
                           Click="TestSend_Click"></MenuItem>
                 <MenuItem Header="_Test2"
                           Visibility="Collapsed"
+                          x:Name="TestMenuItem2"
                           Click="Button_Click"></MenuItem>
             </Menu>
             <Separator VerticalAlignment="Bottom"></Separator>
