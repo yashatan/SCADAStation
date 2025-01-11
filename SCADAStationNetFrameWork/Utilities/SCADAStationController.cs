@@ -52,6 +52,7 @@ namespace SCADAStationNetFrameWork
         public static ProjectInformation currentProjectInformation;
         public List<TrendPoint> listTrendPoints;
         private System.Timers.Timer globalTimer;
+        const int TimerInterval = 200;
         public bool LoadFileStatus { get; set; }
         private static SCADAStationController instance;
         public static SCADAStationController Instance
@@ -251,7 +252,7 @@ namespace SCADAStationNetFrameWork
         private void SetUpTimer()
         {
             globalTimer = new System.Timers.Timer();
-            globalTimer.Interval = 500;
+            globalTimer.Interval = TimerInterval;
             globalTimer.Elapsed += Timer_Tick;
             globalTimer.Start();
         }
@@ -410,7 +411,7 @@ namespace SCADAStationNetFrameWork
         {
             foreach (TagLoggingSetting TagLogging in listTagLoggingSettings)
             {
-                TagLogging.currentDuration += 0.5;
+                TagLogging.currentDuration += ((double)TimerInterval)/1000;
                 if (TagLogging.currentDuration >= TagLogging.GetTimeCycle())
                 {
                     double value = 0;

@@ -18,6 +18,7 @@ namespace SCADAStationNetFrameWork
         public string ImageSource { get; set; }
         public double FontSize { get; set; }
         public int ZIndex { get; set; }
+        public int FACode { get; set; }
         public ColorRGB BackgroundColor { get; set; }
         public ColorRGB ForegroundColor { get; set; }
         public ColorRGB Fill { get; set; }
