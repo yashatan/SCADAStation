@@ -273,6 +273,10 @@ namespace SCADAStationNetFrameWork
         {
             foreach (var tagInfo in listTags)
             {
+                if (tagInfo.ConnectDevice == null)
+                {
+                    return;
+                }
                 if (DictionaryControlDevices.ContainsKey(tagInfo.ConnectDevice.Id))
                 {
                     var device = DictionaryControlDevices[tagInfo.ConnectDevice.Id];

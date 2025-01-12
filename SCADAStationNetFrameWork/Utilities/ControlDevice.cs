@@ -295,9 +295,14 @@ namespace SCADAStationNetFrameWork
         {
             if (currentType == ConnectDevice.emConnectionType.emS7)
             {
-                if (tag.Type == TagInfo.TagType.eShort)
+                if (tag.Type == TagInfo.TagType.eShort|| tag.Type == TagInfo.TagType.eInt)
                 {
-                    var valuetowrite = Convert.ToUInt16(value);
+                    var valuetowrite = Convert.ToInt16(value);
+                    plcdevice.Write(tag.MemoryAddress, valuetowrite);
+                }
+                else if (tag.Type == TagInfo.TagType.eInt)
+                {
+                    var valuetowrite = Convert.ToInt32(value);
                     plcdevice.Write(tag.MemoryAddress, valuetowrite);
                 }
                 else if (tag.Type == TagInfo.TagType.eBool)

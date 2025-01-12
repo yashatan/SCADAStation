@@ -21,6 +21,12 @@
                           ScrollViewer.CanContentScroll="True"
                           PreviewMouseWheel="ListViewItems_PreviewMouseWheel"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="IsHitTestVisible"
+                                    Value="False" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Name"
