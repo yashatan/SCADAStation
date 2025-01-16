@@ -134,7 +134,7 @@ namespace SCADAStationNetFrameWork
             listTagLoggingSettings = mSCADAStationConfiguration.TagLoggingSettings;
             listAlarmPoints = new List<AlarmPoint>();
             currentProjectInformation = mSCADAStationConfiguration.ProjectInformation;
-
+            currentProjectInformation.FilePath = fileName;
             listcontrolDevices = new List<ControlDevice>();
             foreach (var device in listDevices)
             {
@@ -483,7 +483,7 @@ namespace SCADAStationNetFrameWork
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    if (ip.ToString().Contains("0.50")) { continue; }
+                    if (ip.ToString().Contains("1.50")) { continue; }
                     if (ip.ToString().Contains("172.")) { continue; }
                     return ip.ToString();
                 }
